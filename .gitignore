@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma: клиент генерируется командой `prisma generate`,
+# в репозиторий его не кладём (восстанавливается через postinstall)
+/src/generated
+
+# локальный кэш npm, созданный из-за ограничений окружения
+/.npm-cache
