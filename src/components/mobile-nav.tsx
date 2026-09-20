@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
@@ -8,17 +8,11 @@ import { siteConfig } from "@/lib/site";
 
 /**
  * Мобильное меню. Клиентский компонент, потому что состояние открытости
- * живёт в браузере. Вынесен отдельно от SiteHeader намеренно: шапка остаётся
- * серверным компонентом и не тянет JavaScript в бандл.
+ * живёт в браузере. Вынесен отдельно от SiteHeader намеренно: шапка
+ * остаётся серверным компонентом и не тянет JavaScript в бандл.
  */
-export function MobileNav() {
+function MenuPanel() {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-
-  // Переход на другую страницу должен закрывать меню
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   return (
     <div className="md:hidden">
@@ -54,4 +48,18 @@ export function MobileNav() {
       )}
     </div>
   );
+}
+
+export function MobileNav() {
+  const pathname = usePathname();
+
+  /*
+   * key заставляет React пересоздать панель при смене адреса, поэтому меню
+   * закрывается само: состояние open исчезает вместе с компонентом.
+   *
+   * Раньше это делал useEffect с setOpen(false). Так писать не стоит —
+   * вызов состояния прямо в эффекте порождает лишний каскад рендеров,
+   * и правило react-hooks/set-state-in-effect справедливо на это ругается.
+   */
+  return <MenuPanel key={pathname} />;
 }

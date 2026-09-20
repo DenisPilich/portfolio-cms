@@ -79,7 +79,6 @@ export default async function AdminPostsPage() {
 
                 <form action={deletePostAction}>
                   <input type="hidden" name="id" value={post.id} />
-                  <input type="hidden" name="slug" value={post.slug} />
                   <DeleteButton label={post.title} />
                 </form>
               </div>

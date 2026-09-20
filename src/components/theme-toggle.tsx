@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
 type Theme = "light" | "dark";
@@ -8,26 +8,48 @@ type Theme = "light" | "dark";
 /**
  * Переключатель темы.
  *
- * Компонент клиентский: только в браузере есть localStorage и classList.
- * Начальное значение НЕ берётся из window при первом рендере — это сломало бы
- * гидратацию, потому что сервер отдаёт разметку, ничего не зная о теме.
- * Вместо этого тему выставляет крошечный инлайн-скрипт в layout.tsx ещё до
- * отрисовки, а здесь мы просто читаем уже готовое состояние.
+ * Тема живёт вне React — это класс dark на элементе <html>, который
+ * выставляет инлайн-скрипт в layout ещё до первой отрисовки. Читать такое
+ * состояние через useState и синхронизировать эффектом неправильно: эффект
+ * вызовет лишний рендер, и правило react-hooks/set-state-in-effect на это
+ * справедливо ругается.
+ *
+ * useSyncExternalStore создан ровно для внешних источников состояния:
+ * React сам подписывается на изменения и перечитывает значение. Серверная
+ * версия нужна для гидратации — она отдаёт тему по умолчанию, а после
+ * монтирования React подставит настоящую, без ошибок несоответствия.
  */
-export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [mounted, setMounted] = useState(false);
+function subscribeToThemeChanges(onStoreChange: () => void) {
+  const observer = new MutationObserver(onStoreChange);
 
-  useEffect(() => {
-    setMounted(true);
-    setTheme(
-      document.documentElement.classList.contains("dark") ? "dark" : "light",
-    );
-  }, []);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+
+  return () => observer.disconnect();
+}
+
+function getThemeSnapshot(): Theme {
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+function getServerThemeSnapshot(): Theme {
+  return "dark";
+}
+
+export function ThemeToggle() {
+  const theme = useSyncExternalStore(
+    subscribeToThemeChanges,
+    getThemeSnapshot,
+    getServerThemeSnapshot,
+  );
 
   function toggleTheme() {
     const next: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(next);
+
+    // Меняем внешний источник, а не состояние React: наблюдатель
+    // в subscribeToThemeChanges заметит изменение класса и обновит тему.
     document.documentElement.classList.toggle("dark", next === "dark");
     localStorage.setItem("theme", next);
   }
@@ -43,10 +65,7 @@ export function ThemeToggle() {
       title={label}
       className="inline-flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
     >
-      {/* До монтирования рисуем нейтральную заглушку, чтобы не мигала иконка */}
-      {!mounted ? (
-        <span className="size-4" aria-hidden />
-      ) : theme === "dark" ? (
+      {theme === "dark" ? (
         <Sun className="size-4" aria-hidden />
       ) : (
         <Moon className="size-4" aria-hidden />

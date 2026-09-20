@@ -81,7 +81,6 @@ export default async function AdminProjectsPage() {
 
                 <form action={deleteProjectAction}>
                   <input type="hidden" name="id" value={project.id} />
-                  <input type="hidden" name="slug" value={project.slug} />
                   <DeleteButton label={project.title} />
                 </form>
               </div>
