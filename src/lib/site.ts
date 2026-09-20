@@ -8,10 +8,10 @@
  */
 export const siteConfig = {
   /** Подставьте своё имя — оно используется в шапке, подвале и заголовках. */
-  name: "Ваше Имя",
+  name: "Pilich Denis",
   role: "Fullstack-разработчик",
   tagline:
-    "Делаю веб-приложения на TypeScript, React и Node.js. Ниже — проекты и заметки о том, как они устроены.",
+    "Делаю веб-приложения на TypeScript, React и Node.js и не только. Ниже — проекты и заметки о том, как они устроены.",
   description:
     "Портфолио fullstack-разработчика: проекты, технические заметки и открытый исходный код.",
   /** Базовый адрес сайта. В проде задаётся через NEXT_PUBLIC_SITE_URL. */
@@ -25,9 +25,9 @@ export const siteConfig = {
     { href: "/contact", label: "Контакты" },
   ],
   socials: [
-    { href: "https://github.com/", label: "GitHub" },
-    { href: "https://t.me/", label: "Telegram" },
-    { href: "mailto:you@example.com", label: "Email" },
+    { href: "https://github.com/DenisPilich", label: "GitHub" },
+    { href: "https://t.me/DeniskaJob", label: "Telegram" },
+    { href: "pilich.den@atomicmail.io", label: "Email" },
   ],
 } as const;
 
