@@ -26,11 +26,17 @@ export default async function LoginPage() {
         <LoginForm />
       </div>
 
-      <p className="mt-6 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
-        Демо-доступ: <span className="font-mono">admin@example.com</span> /{" "}
-        <span className="font-mono">admin12345</span>. В реальном проекте этот
-        пароль нужно сменить.
-      </p>
+      {/*
+        Подсказка с демо-доступом нужна только при локальном запуске.
+        В продакшене она превратилась бы в готовую инструкцию для того,
+        кто захочет войти в админку, поэтому там не показывается вовсе.
+      */}
+      {process.env.NODE_ENV === "development" && (
+        <p className="mt-6 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
+          Демо-доступ: <span className="font-mono">admin@example.com</span> /{" "}
+          <span className="font-mono">admin12345</span>
+        </p>
+      )}
     </div>
   );
 }
