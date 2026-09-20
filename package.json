@@ -13,6 +13,7 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "db:check": "node scripts/check-db.mjs",
+    "db:set-password": "tsx scripts/set-password.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:admin": "node scripts/test-admin.mjs",
