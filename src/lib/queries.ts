@@ -151,3 +151,56 @@ export const getSiteSettings = unstable_cache(
   ["site-settings"],
   { tags: [CACHE_TAGS.settings], revalidate: CACHE_SECONDS },
 );
+
+/** Минимальная длина запроса: по одному символу искать бессмысленно. */
+export const MIN_SEARCH_LENGTH = 2;
+
+/**
+ * Поиск по проектам и статьям.
+ *
+ * Функция намеренно НЕ обёрнута в unstable_cache: количество возможных
+ * запросов неограниченно, и кэш превратился бы в свалку одноразовых
+ * записей. Страница поиска и так динамическая, потому что зависит
+ * от параметра в адресе.
+ *
+ * Сравнение регистронезависимое (mode: "insensitive" превращается
+ * в ILIKE). Для портфолио этого достаточно; на большом объёме текста
+ * следующим шагом был бы полнотекстовый поиск средствами PostgreSQL.
+ */
+export async function searchContent(rawQuery: string) {
+  const query = rawQuery.trim();
+
+  if (query.length < MIN_SEARCH_LENGTH) {
+    return { query, projects: [], posts: [] };
+  }
+
+  const [projects, posts] = await Promise.all([
+    prisma.project.findMany({
+      where: {
+        published: true,
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { summary: { contains: query, mode: "insensitive" } },
+          { content: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      orderBy: [{ position: "asc" }],
+      take: 10,
+    }),
+    prisma.post.findMany({
+      where: {
+        published: true,
+        OR: [
+          { title: { contains: query, mode: "insensitive" } },
+          { excerpt: { contains: query, mode: "insensitive" } },
+          { content: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      orderBy: { publishedAt: "desc" },
+      take: 10,
+      include: { tags: true },
+    }),
+  ]);
+
+  return { query, projects, posts };
+}

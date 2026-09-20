@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { slugify } from "@/lib/slug";
+import { ImageUploader } from "@/components/admin/image-uploader";
 import {
   Checkbox,
   FieldError,
@@ -140,19 +141,13 @@ export function PostForm({
           </p>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="coverImage" hint="необязательно">
-            Обложка (URL)
-          </Label>
-          <Input
-            id="coverImage"
-            name="coverImage"
-            type="url"
-            defaultValue={defaultValues?.coverImage ?? ""}
-            placeholder="https://..."
-          />
-          <FieldError errors={state.fieldErrors?.coverImage} />
-        </div>
+        <ImageUploader
+          name="coverImage"
+          label="Обложка"
+          hint="необязательно"
+          defaultValue={defaultValues?.coverImage}
+          errors={state.fieldErrors?.coverImage}
+        />
       </div>
 
       <div className="flex flex-wrap items-center gap-6">

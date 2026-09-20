@@ -364,6 +364,82 @@ async function main() {
     );
   }
 
+  section("8. Поиск");
+  const searchFound = await get(`/search?q=${encodeURIComponent("кэш")}`);
+  check("поиск находит статью", searchFound.text.includes("кэш"));
+  check(
+    "поиск ищет и по проектам",
+    (await get(`/search?q=${encodeURIComponent("Prisma")}`)).text.includes(
+      "Проекты",
+    ),
+  );
+
+  const searchEmpty = await get(`/search?q=${encodeURIComponent("ъъъъъъ")}`);
+  check(
+    "пустой результат объясняется",
+    searchEmpty.text.includes("ничего не нашлось"),
+  );
+
+  const searchShort = await get("/search?q=к");
+  check(
+    "слишком короткий запрос подсказывает минимум",
+    searchShort.text.includes("Введите хотя бы"),
+  );
+
+  section("9. Загрузка обложек");
+  // Минимальный PNG-заголовок: содержимое неважно, проверяем доступ.
+  const pngBytes = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]);
+
+  const anonymousForm = new FormData();
+  anonymousForm.append(
+    "file",
+    new File([pngBytes], "cover.png", { type: "image/png" }),
+  );
+  const anonymousUpload = await request("/api/upload", {
+    method: "POST",
+    body: anonymousForm,
+  });
+  check(
+    "без сессии загрузка запрещена",
+    anonymousUpload.response.status === 401,
+    `статус ${anonymousUpload.response.status}`,
+  );
+
+  const authorizedForm = new FormData();
+  authorizedForm.append(
+    "file",
+    new File([pngBytes], "cover.png", { type: "image/png" }),
+  );
+  const authorizedUpload = await request("/api/upload", {
+    method: "POST",
+    body: authorizedForm,
+    headers: { cookie },
+  });
+  // Код 503 означает, что дело дошло до проверки хранилища, а не отбилось
+  // на авторизации: токен Vercel Blob в этом окружении не задан.
+  check(
+    "с сессией запрос доходит до хранилища",
+    authorizedUpload.response.status === 200 ||
+      authorizedUpload.response.status === 503,
+    `статус ${authorizedUpload.response.status}`,
+  );
+
+  const rejectedForm = new FormData();
+  rejectedForm.append(
+    "file",
+    new File([new Uint8Array([1, 2, 3])], "note.txt", { type: "text/plain" }),
+  );
+  const rejectedUpload = await request("/api/upload", {
+    method: "POST",
+    body: rejectedForm,
+    headers: { cookie },
+  });
+  check(
+    "неподдерживаемый тип файла отклонён",
+    rejectedUpload.response.status === 415,
+    `статус ${rejectedUpload.response.status}`,
+  );
+
   console.log(
     failures === 0
       ? "\nВсе проверки пройдены."

@@ -13,12 +13,15 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "db:check": "node scripts/check-db.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:admin": "node scripts/test-admin.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "@vercel/blob": "^2.8.0",
     "bcryptjs": "^3.0.3",
     "dotenv": "^18.0.1",
     "jose": "^6.2.12",
@@ -35,7 +38,7 @@
     "@fontsource/inter": "^5.3.0",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.20",
-    "@types/node": "^20",
+    "@types/node": "^22.20.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
@@ -43,6 +46,7 @@
     "prisma": "^7.10.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^5.0.1"
   }
 }

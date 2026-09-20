@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Clock } from "lucide-react";
 import { Markdown } from "@/components/markdown";
@@ -104,6 +105,19 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           </ul>
         )}
       </header>
+
+      {post.coverImage && (
+        <div className="relative mt-10 h-64 w-full overflow-hidden rounded-lg border border-border bg-muted sm:h-80">
+          <Image
+            src={post.coverImage}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 100vw, 768px"
+            className="object-cover"
+            priority
+          />
+        </div>
+      )}
 
       <div className="mt-10">
         <Markdown>{post.content}</Markdown>
