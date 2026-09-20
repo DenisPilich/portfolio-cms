@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { assertUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { CACHE_TAGS } from "@/lib/queries";
 import { slugify } from "@/lib/slug";
 import { estimateReadingTime } from "@/lib/format";
 import { postSchema } from "@/lib/validation";
@@ -59,14 +60,23 @@ async function resolveTags(names: string[]) {
   return tags.map((tag) => ({ id: tag.id }));
 }
 
-function revalidatePostViews(slug?: string) {
-  revalidatePath("/");
-  revalidatePath("/blog");
-  revalidatePath("/admin/posts");
+/**
+ * Сброс кэша после изменения статьи.
+ *
+ * updateTag, а не revalidateTag: правка должна быть видна сразу после
+ * сохранения, а revalidateTag лишь помечает данные устаревшими и обновляет
+ * их в фоне. Подробнее — в комментарии к действиям с проектами.
+ *
+ * Помимо самих статей сбрасываем теги: список тегов с количеством статей
+ * строится на этих же данных, и без второго вызова счётчики у тегов
+ * остались бы прежними.
+ */
+function revalidatePostViews() {
+  updateTag(CACHE_TAGS.posts);
+  updateTag(CACHE_TAGS.tags);
 
-  if (slug) {
-    revalidatePath(`/blog/${slug}`);
-  }
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/rss.xml");
 }
 
 export async function createPostAction(
@@ -114,7 +124,7 @@ export async function createPostAction(
     },
   });
 
-  revalidatePostViews(data.slug);
+  revalidatePostViews();
   redirect("/admin/posts");
 }
 
@@ -174,8 +184,7 @@ export async function updatePostAction(
     },
   });
 
-  revalidatePostViews(current.slug);
-  revalidatePostViews(data.slug);
+  revalidatePostViews();
   redirect("/admin/posts");
 }
 
@@ -183,7 +192,6 @@ export async function deletePostAction(formData: FormData): Promise<void> {
   await assertUser();
 
   const id = String(formData.get("id") ?? "");
-  const slug = String(formData.get("slug") ?? "");
 
   if (!id) {
     return;
@@ -191,6 +199,5 @@ export async function deletePostAction(formData: FormData): Promise<void> {
 
   await prisma.post.delete({ where: { id } });
 
-  revalidatePostViews(slug);
-  revalidatePath("/admin/posts");
+  revalidatePostViews();
 }

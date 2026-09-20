@@ -279,6 +279,15 @@ async function main() {
       "изменения сохранены",
       listAfterUpdate.text.includes(UPDATED_TITLE),
     );
+
+    // Ключевая проверка инвалидации кэша: страница на сайте собрана
+    // статически, и без сброса тега здесь осталась бы старая версия.
+    const publicAfterUpdate = await get(`/projects/${TEST_SLUG}`);
+    check(
+      "публичная страница обновилась сразу после правки",
+      publicAfterUpdate.text.includes(UPDATED_TITLE),
+      `статус ${publicAfterUpdate.response.status}`,
+    );
   }
 
   section("6. Статья с тегами");

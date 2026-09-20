@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   const settings = await getSiteSettings();
-  const about = settings.get("about");
+  const about = settings.about;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
@@ -33,10 +33,10 @@ export default async function AboutPage() {
           </dt>
           <dd className="mt-2 text-sm">
             <a
-              href={settings.get("email") ? `mailto:${settings.get("email")}` : "#"}
+              href={settings.email ? `mailto:${settings.email}` : "#"}
               className="text-primary underline-offset-4 hover:underline"
             >
-              {settings.get("email") ?? "укажите в настройках"}
+              {settings.email ?? "укажите в настройках"}
             </a>
           </dd>
         </div>

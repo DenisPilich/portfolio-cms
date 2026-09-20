@@ -4,8 +4,10 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Clock } from "lucide-react";
 import { Markdown } from "@/components/markdown";
 import { TagBadge } from "@/components/tag-badge";
-import { formatDate } from "@/lib/format";
+import { JsonLd } from "@/components/json-ld";
+import { formatDate, toIsoDate } from "@/lib/format";
 import { getPostBySlug, getRecentPosts } from "@/lib/queries";
+import { siteConfig } from "@/lib/site";
 
 export async function generateStaticParams() {
   const posts = await getRecentPosts(1000);
@@ -25,11 +27,15 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.excerpt,
+    // Канонический адрес: если статью открыли с параметрами вроде ?utm_source,
+    // поисковик поймёт, какая версия основная.
+    alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       type: "article",
       title: post.title,
       description: post.excerpt,
-      publishedTime: post.publishedAt?.toISOString(),
+      publishedTime: toIsoDate(post.publishedAt),
+      modifiedTime: toIsoDate(post.updatedAt),
       tags: post.tags.map((tag) => tag.name),
     },
   };
@@ -43,8 +49,23 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
     notFound();
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt,
+    datePublished: toIsoDate(post.publishedAt),
+    dateModified: toIsoDate(post.updatedAt),
+    inLanguage: "ru-RU",
+    keywords: post.tags.map((tag) => tag.name).join(", "),
+    author: { "@type": "Person", name: siteConfig.name },
+    publisher: { "@type": "Person", name: siteConfig.name },
+    mainEntityOfPage: `${siteConfig.url}/blog/${post.slug}`,
+  };
+
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-16">
+      <JsonLd data={jsonLd} />
       <Link
         href="/blog"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -63,7 +84,7 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         </p>
 
         <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-          <time dateTime={post.publishedAt?.toISOString()}>
+          <time dateTime={toIsoDate(post.publishedAt)}>
             {formatDate(post.publishedAt)}
           </time>
           <span aria-hidden>·</span>

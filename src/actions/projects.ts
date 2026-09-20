@@ -1,10 +1,11 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { assertUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { CACHE_TAGS } from "@/lib/queries";
 import { projectSchema } from "@/lib/validation";
 import type { ActionState } from "@/lib/action-state";
 
@@ -40,18 +41,28 @@ function validationError(error: z.ZodError): ActionState {
 }
 
 /**
- * После изменения данных нужно сбросить кэш затронутых страниц.
- * Публичные страницы собираются статически, поэтому без этого шага
- * правка в админке не была бы видна посетителям до пересборки.
+ * Сброс кэша после изменения проекта.
+ *
+ * Публичные страницы собираются статически, поэтому без этого шага правка
+ * в админке не была бы видна посетителям до следующей пересборки.
+ *
+ * Используется updateTag, а не revalidateTag. Разница принципиальная:
+ * revalidateTag помечает данные устаревшими и обновляет их в фоне, поэтому
+ * сразу после сохранения на странице ещё может показываться старая версия.
+ * updateTag истекает немедленно и доступен только внутри Server Action —
+ * ровно наш случай: администратор сохранил и тут же видит результат.
+ *
+ * Инвалидация точечная: сбрасывается всё, что построено на данных с этим
+ * тегом, — главная, список проектов и детальные страницы. Перечислять
+ * адреса по отдельности не нужно, и страницы, добавленные позже, тоже
+ * попадут под инвалидацию автоматически.
  */
-function revalidateProjectViews(slug?: string) {
-  revalidatePath("/");
-  revalidatePath("/projects");
-  revalidatePath("/admin/projects");
+function revalidateProjectViews() {
+  updateTag(CACHE_TAGS.projects);
 
-  if (slug) {
-    revalidatePath(`/projects/${slug}`);
-  }
+  // Карта сайта — отдельный обработчик, с данными через теги он не связан,
+  // поэтому его адрес сбрасываем явно.
+  revalidatePath("/sitemap.xml");
 }
 
 export async function createProjectAction(
@@ -99,7 +110,7 @@ export async function createProjectAction(
     },
   });
 
-  revalidateProjectViews(data.slug);
+  revalidateProjectViews();
   redirect("/admin/projects");
 }
 
@@ -163,8 +174,7 @@ export async function updateProjectAction(
     },
   });
 
-  revalidateProjectViews(current.slug);
-  revalidateProjectViews(data.slug);
+  revalidateProjectViews();
   redirect("/admin/projects");
 }
 
@@ -172,7 +182,6 @@ export async function deleteProjectAction(formData: FormData): Promise<void> {
   await assertUser();
 
   const id = String(formData.get("id") ?? "");
-  const slug = String(formData.get("slug") ?? "");
 
   if (!id) {
     return;
@@ -180,6 +189,5 @@ export async function deleteProjectAction(formData: FormData): Promise<void> {
 
   await prisma.project.delete({ where: { id } });
 
-  revalidateProjectViews(slug);
-  revalidatePath("/admin/projects");
+  revalidateProjectViews();
 }

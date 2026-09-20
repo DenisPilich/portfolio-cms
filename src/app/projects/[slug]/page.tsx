@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Code2, ExternalLink } from "lucide-react";
 import { Markdown } from "@/components/markdown";
-import { formatDate } from "@/lib/format";
+import { formatDate, toIsoDate } from "@/lib/format";
 import { getProjectBySlug, getPublishedProjects } from "@/lib/queries";
 
 /**
@@ -65,7 +65,7 @@ export default async function ProjectPage({
         </p>
 
         <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-          <time dateTime={project.publishedAt?.toISOString()}>
+          <time dateTime={toIsoDate(project.publishedAt)}>
             {formatDate(project.publishedAt)}
           </time>
 

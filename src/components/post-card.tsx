@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Clock } from "lucide-react";
-import { formatDate } from "@/lib/format";
+import { formatDate, toIsoDate } from "@/lib/format";
 import { TagBadge } from "@/components/tag-badge";
 import type { Post, Tag } from "@/generated/prisma/client";
 
@@ -10,7 +10,7 @@ export function PostCard({ post }: { post: PostWithTags }) {
   return (
     <article className="flex flex-col rounded-lg border border-border bg-card p-6 transition-colors hover:border-primary/60">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-        <time dateTime={post.publishedAt?.toISOString()}>
+        <time dateTime={toIsoDate(post.publishedAt)}>
           {formatDate(post.publishedAt)}
         </time>
         <span aria-hidden>·</span>
