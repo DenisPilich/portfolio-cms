@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/admin", label: "Обзор" },
   { href: "/admin/projects", label: "Проекты" },
   { href: "/admin/posts", label: "Статьи" },
+  { href: "/admin/skills", label: "Навыки" },
 ] as const;
 
 export function AdminNav() {

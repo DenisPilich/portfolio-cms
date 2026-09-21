@@ -21,6 +21,7 @@ const TEST_SLUG = "e2e-test-project";
 const TEST_TITLE = "Проект для проверки";
 const UPDATED_TITLE = "Проект для проверки (изменён)";
 const TEST_POST_SLUG = "e2e-test-post";
+const TEST_SKILL_NAME = "Навык для проверки";
 
 let failures = 0;
 
@@ -126,6 +127,29 @@ function extractRecordIds(html, resource) {
   }
 
   return result;
+}
+
+/**
+ * Находит идентификатор записи по её названию.
+ *
+ * У навыков нет slug, поэтому общий extractRecordIds не подходит: ищем
+ * в пределах одного элемента списка, где рядом с названием лежит скрытое
+ * поле с идентификатором.
+ */
+function findIdByName(html, name) {
+  const withoutComments = html.replace(/<!--[\s\S]*?-->/g, "");
+
+  for (const chunk of withoutComments.split("<li")) {
+    if (chunk.includes(name)) {
+      const id = /name="id" value="([^"]+)"/.exec(chunk)?.[1];
+
+      if (id) {
+        return id;
+      }
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -439,6 +463,56 @@ async function main() {
     rejectedUpload.response.status === 415,
     `статус ${rejectedUpload.response.status}`,
   );
+
+  section("10. Навыки");
+  let skillsHtml = (await get("/admin/skills", cookie)).text;
+  check("раздел навыков открывается", skillsHtml.includes("Hard skills"));
+
+  // Убираем навык от прошлого запуска: уникального поля у навыка нет,
+  // поэтому повторное создание не упало бы, а просто наплодило дублей.
+  const staleSkillId = findIdByName(skillsHtml, TEST_SKILL_NAME);
+  if (staleSkillId) {
+    const staleFields = extractHiddenFields(skillsHtml);
+    staleFields.set("id", staleSkillId);
+    await postForm("/admin/skills", staleFields, cookie);
+  }
+
+  const newSkillPage = await get("/admin/skills/new", cookie);
+  const skillFields = extractHiddenFields(newSkillPage.text);
+  skillFields.set("name", TEST_SKILL_NAME);
+  skillFields.set("description", "Навык, созданный автоматической проверкой.");
+  skillFields.set("category", "SOFT");
+  skillFields.set("icon", "");
+  skillFields.set("position", "99");
+
+  const createdSkill = await postForm("/admin/skills/new", skillFields, cookie);
+  check(
+    "навык создан",
+    createdSkill.response.status < 400,
+    `статус ${createdSkill.response.status}`,
+  );
+
+  const homeWithSkill = await get("/");
+  check(
+    "навык появился на главной",
+    homeWithSkill.text.includes(TEST_SKILL_NAME),
+  );
+
+  skillsHtml = (await get("/admin/skills", cookie)).text;
+  const skillId = findIdByName(skillsHtml, TEST_SKILL_NAME);
+  check("навык виден в списке", Boolean(skillId));
+
+  if (skillId) {
+    const deleteSkillFields = extractHiddenFields(skillsHtml);
+    deleteSkillFields.set("id", skillId);
+    await postForm("/admin/skills", deleteSkillFields, cookie);
+
+    const homeAfterDelete = await get("/");
+    check(
+      "навык удалён и пропал с главной",
+      !homeAfterDelete.text.includes(TEST_SKILL_NAME),
+    );
+  }
 
   console.log(
     failures === 0

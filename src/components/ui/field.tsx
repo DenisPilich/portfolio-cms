@@ -1,4 +1,8 @@
-import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import type {
+  InputHTMLAttributes,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+} from "react";
 
 /**
  * Мелкие элементы форм с едиными стилями.
@@ -41,6 +45,15 @@ export function Textarea({
       className={`${fieldClassName} leading-relaxed ${className ?? ""}`}
       {...props}
     />
+  );
+}
+
+export function Select({
+  className,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select className={`${fieldClassName} ${className ?? ""}`} {...props} />
   );
 }
 

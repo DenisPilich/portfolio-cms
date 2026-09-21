@@ -102,6 +102,44 @@ export const postSchema = z.object({
   published: checkboxSchema,
 });
 
+/** Категория навыка. Значения совпадают с enum в схеме базы. */
+const skillCategorySchema = z.enum(["HARD", "SOFT"], {
+  message: "Выберите категорию",
+});
+
+/** Пустая строка превращается в null: в базе поле необязательное. */
+const optionalTextSchema = z
+  .string()
+  .trim()
+  .max(300, "Не больше 300 символов")
+  .transform((value) => (value === "" ? null : value));
+
+export const skillSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Минимум 2 символа")
+    .max(60, "Не больше 60 символов"),
+  description: optionalTextSchema,
+  category: skillCategorySchema,
+  /**
+   * Ключ иконки из набора Simple Icons: «react», «nextdotjs».
+   * Свободный текст, а не список значений: набор пополняется, и жёсткий
+   * перечень пришлось бы править при каждой новой технологии.
+   */
+  icon: z
+    .string()
+    .trim()
+    .max(60, "Не больше 60 символов")
+    .transform((value) => (value === "" ? null : value)),
+  position: z.coerce
+    .number()
+    .int("Целое число")
+    .min(0, "Не может быть отрицательным")
+    .max(999),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProjectInput = z.infer<typeof projectSchema>;
 export type PostInput = z.infer<typeof postSchema>;
+export type SkillInput = z.infer<typeof skillSchema>;
