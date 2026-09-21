@@ -24,6 +24,11 @@ const shortDateFormatter = new Intl.DateTimeFormat("ru-RU", {
   year: "numeric",
 });
 
+const monthYearFormatter = new Intl.DateTimeFormat("ru-RU", {
+  month: "long",
+  year: "numeric",
+});
+
 function toDate(value: DateLike): Date | null {
   if (!value) {
     return null;
@@ -42,8 +47,16 @@ export function formatDate(value: DateLike): string {
 
 export function formatShortDate(value: DateLike): string {
   const date = toDate(value);
-
   return date ? shortDateFormatter.format(date) : "—";
+}
+
+/**
+ * Месяц и год — формат для карточек портфолио. День в такой подписи
+ * не нужен и только создаёт ложную точность.
+ */
+export function formatMonthYear(value: DateLike): string {
+  const date = toDate(value);
+  return date ? monthYearFormatter.format(date) : "без даты";
 }
 
 /**

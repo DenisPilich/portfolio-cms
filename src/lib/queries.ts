@@ -22,6 +22,7 @@ export const CACHE_TAGS = {
   posts: "posts",
   tags: "tags",
   settings: "settings",
+  skills: "skills",
 } as const;
 
 const CACHE_SECONDS = 3600;
@@ -154,6 +155,21 @@ export const getSiteSettings = unstable_cache(
 
 /** Минимальная длина запроса: по одному символу искать бессмысленно. */
 export const MIN_SEARCH_LENGTH = 2;
+
+/**
+ * Навыки для раздела «Что я умею».
+ *
+ * Сортируем по категории, затем по ручному порядку: администратор задаёт
+ * последовательность сам, а алфавит работает только как запасной вариант.
+ */
+export const getSkills = unstable_cache(
+  async () =>
+    prisma.skill.findMany({
+      orderBy: [{ category: "asc" }, { position: "asc" }, { name: "asc" }],
+    }),
+  ["skills"],
+  { tags: [CACHE_TAGS.skills], revalidate: CACHE_SECONDS },
+);
 
 /**
  * Поиск по проектам и статьям.

@@ -1,55 +1,40 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { siteConfig } from "@/lib/site";
-import { getFeaturedProjects, getRecentPosts } from "@/lib/queries";
-import { ProjectCard } from "@/components/project-card";
+import { getPublishedProjects, getRecentPosts, getSkills } from "@/lib/queries";
+import { HeroSection } from "@/components/hero-section";
+import { SkillsSection } from "@/components/skills-section";
+import { ContactsSection } from "@/components/contacts-section";
+import { ProjectShowcase } from "@/components/project-showcase";
 import { PostCard } from "@/components/post-card";
 
 /**
- * Главная страница — серверный компонент: база данных читается прямо здесь,
- * во время рендера. Никакого API-слоя и никакого состояния загрузки
- * на клиенте: браузер получает уже готовую разметку.
+ * Главная — лендинг с якорями: первый экран, навыки, портфолио, контакты.
+ * Отдельные страницы остаются для того, что требует глубины: детали проекта,
+ * блог с пагинацией и поиск.
+ *
+ * Данные читаются параллельно: три независимых запроса незачем выстраивать
+ * в очередь.
  */
 export default async function HomePage() {
-  const [projects, posts] = await Promise.all([
-    getFeaturedProjects(2),
+  const [projects, skills, posts] = await Promise.all([
+    getPublishedProjects(),
+    getSkills(),
     getRecentPosts(2),
   ]);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6">
-      <section className="py-20 sm:py-28">
-        <p className="font-mono text-sm text-primary">{siteConfig.role}</p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-          {siteConfig.name}
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg text-pretty text-muted-foreground">
-          {siteConfig.tagline}
-        </p>
+      <HeroSection />
 
-        <div className="mt-9 flex flex-wrap gap-3">
-          <Link
-            href="/projects"
-            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            Смотреть проекты
-            <ArrowRight className="size-4" aria-hidden />
-          </Link>
-          <Link
-            href="/contact"
-            className="inline-flex items-center rounded-md border border-border px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            Связаться
-          </Link>
-        </div>
-      </section>
+      <SkillsSection skills={skills} />
 
       {projects.length > 0 && (
-        <section className="border-t border-border py-14">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="text-xl font-semibold tracking-tight">
-              Избранные проекты
-            </h2>
+        <section
+          id="portfolio"
+          className="scroll-mt-24 border-t border-border py-20"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-4">
+            <h2 className="text-2xl font-semibold tracking-tight">Портфолио</h2>
             <Link
               href="/projects"
               className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -59,18 +44,26 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            {projects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+          <div className="mt-8 grid gap-6">
+            {projects.map((project, index) => (
+              <div
+                key={project.id}
+                // Задержка растёт с индексом: карточки выезжают по очереди,
+                // а не появляются все одновременно.
+                style={{ animationDelay: `${index * 80}ms` }}
+                className="animate-fade-in-up"
+              >
+                <ProjectShowcase project={project} />
+              </div>
             ))}
           </div>
         </section>
       )}
 
       {posts.length > 0 && (
-        <section className="border-t border-border py-14">
-          <div className="flex items-baseline justify-between gap-4">
-            <h2 className="text-xl font-semibold tracking-tight">
+        <section className="border-t border-border py-20">
+          <div className="flex flex-wrap items-baseline justify-between gap-4">
+            <h2 className="text-2xl font-semibold tracking-tight">
               Свежее в блоге
             </h2>
             <Link
@@ -89,6 +82,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <ContactsSection />
     </div>
   );
 }

@@ -14,6 +14,12 @@ export const siteConfig = {
     "Делаю веб-приложения на TypeScript, React и Node.js и не только. Ниже — проекты и заметки о том, как они устроены.",
   description:
     "Портфолио fullstack-разработчика: проекты, технические заметки и открытый исходный код.",
+  /** Текст первого экрана: показывается с анимацией появления. */
+  hero: {
+    greeting: "Привет! Меня зовут",
+    intro:
+      "Могу сделать для вас что-то стоящее: от идеи и интерфейса до базы данных и деплоя.",
+  },
   /** Базовый адрес сайта. В проде задаётся через NEXT_PUBLIC_SITE_URL. */
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   locale: "ru_RU",
@@ -27,7 +33,7 @@ export const siteConfig = {
   socials: [
     { href: "https://github.com/DenisPilich", label: "GitHub" },
     { href: "https://t.me/DeniskaJob", label: "Telegram" },
-    { href: "pilich.den@atomicmail.io", label: "Email" },
+    { href: "mailto:pilich.den@atomicmail.io", label: "Email" },
   ],
 } as const;
 

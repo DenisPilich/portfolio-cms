@@ -129,3 +129,32 @@ model SiteSetting {
 
   @@map("site_settings")
 }
+
+/// Категория навыка. Hard — технологии и инструменты, soft — качества.
+enum SkillCategory {
+  HARD
+  SOFT
+}
+
+/// Навык из раздела «Что я умею».
+model Skill {
+  id   String        @id @default(cuid())
+  name String
+  /// Пояснение. Для soft-навыков это основной текст, для hard — необязательный.
+  description String?
+  category    SkillCategory
+
+  /// Ключ иконки из набора Simple Icons: «react», «nextdotjs», «prisma».
+  /// Хранится строкой, а не картинкой: логотипы подставляются при отрисовке,
+  /// поэтому их можно менять, не трогая базу.
+  icon String?
+
+  /// Ручной порядок вывода внутри категории.
+  position Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category, position])
+  @@map("skills")
+}

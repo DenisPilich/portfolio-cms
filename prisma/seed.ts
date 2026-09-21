@@ -220,6 +220,88 @@ Prisma 7 отказалась от Rust-движка запросов в пол�
     });
   }
 
+  /**
+   * Навыки. Иконки заданы ключами Simple Icons — по ним на сайте
+   * подставляется логотип технологии. Если ключ неизвестен, навык просто
+   * выводится текстом, поэтому опечатка ничего не ломает.
+   */
+  /**
+   * Явный тип нужен, чтобы строки «HARD» и «SOFT» сузились до литералов.
+   * Без аннотации TypeScript выводит обычный string и не принимает его
+   * вместо enum-поля.
+   */
+  type SeedSkill = {
+    name: string;
+    description?: string;
+    icon?: string;
+    category: "HARD" | "SOFT";
+    position: number;
+  };
+
+  const skills: SeedSkill[] = [
+    { name: "TypeScript", icon: "typescript", category: "HARD", position: 1 },
+    { name: "React", icon: "react", category: "HARD", position: 2 },
+    { name: "Next.js", icon: "nextdotjs", category: "HARD", position: 3 },
+    { name: "Node.js", icon: "nodedotjs", category: "HARD", position: 4 },
+    { name: "PostgreSQL", icon: "postgresql", category: "HARD", position: 5 },
+    { name: "Prisma", icon: "prisma", category: "HARD", position: 6 },
+    { name: "Tailwind CSS", icon: "tailwindcss", category: "HARD", position: 7 },
+    { name: "Docker", icon: "docker", category: "HARD", position: 8 },
+    { name: "Git", icon: "git", category: "HARD", position: 9 },
+    {
+      name: "Работа в команде",
+      description:
+        "Есть опыт общения с дизайнерами, менеджерами и другими разработчиками.",
+      category: "SOFT",
+      position: 1,
+    },
+    {
+      name: "Ответственность за сроки",
+      description: "Соблюдаю договорённости и предупреждаю о рисках заранее.",
+      category: "SOFT",
+      position: 2,
+    },
+    {
+      name: "Внимание к деталям",
+      description: "Читаю требования до конца и уточняю неясные места.",
+      category: "SOFT",
+      position: 3,
+    },
+    {
+      name: "Требовательность к коду",
+      description: "Слежу за единым стилем и читаемостью, пишу тесты.",
+      category: "SOFT",
+      position: 4,
+    },
+    {
+      name: "Открытость к критике",
+      description: "Спокойно воспринимаю замечания и делаю выводы.",
+      category: "SOFT",
+      position: 5,
+    },
+    {
+      name: "Постоянное обучение",
+      description: "Слежу за развитием стека и пробую новое на пет-проектах.",
+      category: "SOFT",
+      position: 6,
+    },
+  ];
+
+  for (const skill of skills) {
+    // Естественного уникального ключа у навыка нет, поэтому ищем по названию
+    // и категории: так повторный запуск не наплодит дублей.
+    const existing = await prisma.skill.findFirst({
+      where: { name: skill.name, category: skill.category },
+      select: { id: true },
+    });
+
+    if (existing) {
+      await prisma.skill.update({ where: { id: existing.id }, data: skill });
+    } else {
+      await prisma.skill.create({ data: skill });
+    }
+  }
+
   const settings = [
     { key: "about", value: "Пишу веб-приложения на TypeScript и React." },
     { key: "github", value: "https://github.com/" },
@@ -236,7 +318,7 @@ Prisma 7 отказалась от Rust-движка запросов в пол�
   }
 
   console.log(
-    `Готово: пользователь ${admin.email}, проектов ${projects.length}, статей ${posts.length}.`,
+    `Готово: пользователь ${admin.email}, проектов ${projects.length}, статей ${posts.length}, навыков ${skills.length}.`,
   );
   console.log(`Логин в админку: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
 }
