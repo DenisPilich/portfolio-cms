@@ -8,6 +8,7 @@ import {
   SiHtml5,
   SiJavascript,
   SiJest,
+  SiLaravel,
   SiMongodb,
   SiNextdotjs,
   SiNginx,
@@ -27,7 +28,6 @@ import {
   SiWebpack,
   SiZod,
 } from "react-icons/si";
-import { Code2 } from "lucide-react";
 
 /**
  * Логотипы технологий.
@@ -49,6 +49,7 @@ const ICONS: Record<string, IconType> = {
   nodejs: SiNodedotjs,
   nodedotjs: SiNodedotjs,
   express: SiExpress,
+  laravel: SiLaravel,
   postgresql: SiPostgresql,
   postgres: SiPostgresql,
   prisma: SiPrisma,
@@ -84,10 +85,29 @@ export function findTechIcon(name: string): IconType | undefined {
 }
 
 /**
+ * Инициалы для технологий, которых нет в наборе логотипов.
+ *
+ * Общая заглушка на всех сделала бы список нечитаемым: несколько одинаковых
+ * значков подряд ничего не сообщают. Монограмма хотя бы различает записи.
+ * Так, логотипа Zustand в Simple Icons нет — вместо него будет «Zu».
+ */
+function initials(name: string): string {
+  const words = name.split(/[\s.]+/).filter(Boolean);
+
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+
+  const single = name.slice(0, 2);
+
+  return single.charAt(0).toUpperCase() + single.slice(1).toLowerCase();
+}
+
+/**
  * Иконка технологии по названию.
  *
- * Если логотип неизвестен, возвращается нейтральный значок, а не пустота:
- * список не должен разъезжаться из-за одной незнакомой технологии.
+ * Если логотип неизвестен, показывается монограмма, а не пустота: список
+ * не должен разъезжаться из-за одной незнакомой технологии.
  */
 export function TechIcon({
   name,
@@ -99,7 +119,15 @@ export function TechIcon({
   const Icon = findTechIcon(name);
 
   if (!Icon) {
-    return <Code2 className={className} aria-hidden />;
+    return (
+      <span
+        title={name}
+        aria-hidden
+        className={`${className} flex items-center justify-center font-mono text-[0.6rem] leading-none font-semibold`}
+      >
+        {initials(name)}
+      </span>
+    );
   }
 
   return <Icon className={className} aria-hidden title={name} />;

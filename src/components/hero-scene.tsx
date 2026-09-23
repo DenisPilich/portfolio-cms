@@ -3,13 +3,17 @@ import { TechIcon } from "@/components/tech-icon";
 /**
  * Анимированная сцена первого экрана.
  *
- * Логотипы расставлены по кругу: угол считается от индекса, поэтому
- * добавление технологии в список ничего не ломает — она просто встанет
- * в общее кольцо. В центре — символ кода, вокруг плывут иконки, снизу
- * бежит строка из нулей и единиц.
+ * Логотипы расставлены строго по окружности: угол считается от индекса,
+ * поэтому добавление технологии в список ничего не ломает — она просто
+ * встанет в общее кольцо на равном расстоянии от соседей.
  *
- * Всё на CSS: анимации описаны в globals.css, здесь задаются только
- * задержки. Так сцена не тянет ни одной библиотеки анимации в бандл.
+ * Важно: иконки не смещаются вбок. Раньше каждая плавала вверх-вниз со своей
+ * задержкой, и в любой момент времени кольцо выглядело кривым. Теперь
+ * движение отдано пунктирной орбите, которая вращается, а сами иконки лишь
+ * слегка пульсируют на месте.
+ *
+ * Всё на CSS: анимации описаны в globals.css, здесь задаются только задержки,
+ * поэтому сцена не тянет библиотеку анимаций в бандл.
  */
 const ORBIT_TECH = [
   "TypeScript",
@@ -26,13 +30,16 @@ const ORBIT_TECH = [
 const BINARY_STRING =
   "01101001 01101101 01110000 01101111 01110010 01110100 00100000 01110010 01100101 01100001 01100011 01110100 ";
 
+/** Радиус кольца в процентах от размера сцены. */
+const ORBIT_RADIUS = 39;
+
 export function HeroScene() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-sm select-none">
-      {/* Концентрические окружности задают ощущение орбиты */}
+      {/* Пунктирная орбита: вращается она, а не иконки */}
       <svg
         viewBox="0 0 200 200"
-        className="absolute inset-0 size-full text-border"
+        className="absolute inset-0 size-full animate-spin-slow text-border"
         aria-hidden
       >
         <circle
@@ -44,6 +51,14 @@ export function HeroScene() {
           strokeWidth="0.5"
           strokeDasharray="4 6"
         />
+      </svg>
+
+      {/* Внутренняя окружность неподвижна — она задаёт центр композиции */}
+      <svg
+        viewBox="0 0 200 200"
+        className="absolute inset-0 size-full text-border"
+        aria-hidden
+      >
         <circle
           cx="100"
           cy="100"
@@ -55,10 +70,10 @@ export function HeroScene() {
       </svg>
 
       {ORBIT_TECH.map((tech, index) => {
-        // Раскладываем иконки равномерно по окружности
+        // Углы распределены равномерно, первый — строго сверху
         const angle = (index / ORBIT_TECH.length) * Math.PI * 2 - Math.PI / 2;
-        const left = 50 + Math.cos(angle) * 39;
-        const top = 50 + Math.sin(angle) * 39;
+        const left = 50 + Math.cos(angle) * ORBIT_RADIUS;
+        const top = 50 + Math.sin(angle) * ORBIT_RADIUS;
 
         return (
           <span
@@ -67,10 +82,10 @@ export function HeroScene() {
             style={{
               left: `${left}%`,
               top: `${top}%`,
-              // Разные задержки создают ощущение, что иконки плывут вразнобой
-              animationDelay: `${index * 320}ms`,
+              // Разные задержки делают пульсацию несинхронной
+              animationDelay: `${index * 400}ms`,
             }}
-            className="absolute flex size-11 -translate-x-1/2 -translate-y-1/2 animate-float items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm"
+            className="absolute flex size-11 -translate-x-1/2 -translate-y-1/2 animate-pulse-soft items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm"
           >
             <TechIcon name={tech} className="size-5" />
           </span>

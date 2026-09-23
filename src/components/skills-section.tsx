@@ -28,14 +28,10 @@ export function SkillsSection({ skills }: { skills: Skill[] }) {
           </h3>
 
           <ul className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {hardSkills.map((skill, index) => (
+            {hardSkills.map((skill) => (
               <li
                 key={skill.id}
-                // Задержка растёт с индексом: карточки появляются волной,
-                // а не все разом. Значение задаётся в разметке, потому что
-                // оно зависит от позиции в списке.
-                style={{ animationDelay: `${index * 45}ms` }}
-                className="flex animate-fade-in-up items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/60"
+                className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/60"
               >
                 <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-foreground">
                   <TechIcon name={skill.icon ?? skill.name} />
@@ -54,11 +50,10 @@ export function SkillsSection({ skills }: { skills: Skill[] }) {
           </h3>
 
           <ul className="mt-5 grid gap-4 sm:grid-cols-2">
-            {softSkills.map((skill, index) => (
+            {softSkills.map((skill) => (
               <li
                 key={skill.id}
-                style={{ animationDelay: `${index * 45}ms` }}
-                className="animate-fade-in-up rounded-lg border border-border bg-card p-5"
+                className="rounded-lg border border-border bg-card p-5"
               >
                 <p className="font-medium">{skill.name}</p>
                 {skill.description && (

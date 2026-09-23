@@ -248,6 +248,12 @@ Prisma 7 отказалась от Rust-движка запросов в пол�
     { name: "Tailwind CSS", icon: "tailwindcss", category: "HARD", position: 7 },
     { name: "Docker", icon: "docker", category: "HARD", position: 8 },
     { name: "Git", icon: "git", category: "HARD", position: 9 },
+    // Логотипа Zustand в наборе Simple Icons нет, поэтому иконка не задана:
+    // на сайте вместо неё покажется монограмма «Zu».
+    { name: "Zustand", category: "HARD", position: 10 },
+    { name: "Redux", icon: "redux", category: "HARD", position: 11 },
+    { name: "Laravel", icon: "laravel", category: "HARD", position: 12 },
+    { name: "Vite", icon: "vite", category: "HARD", position: 13 },
     {
       name: "Работа в команде",
       description:

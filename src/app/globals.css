@@ -86,6 +86,18 @@
   --animate-fade-in-up: fade-in-up 0.6s ease-out both;
   --animate-float: float 6s ease-in-out infinite;
   --animate-scroll-binary: scroll-binary 20s linear infinite;
+  --animate-spin-slow: spin-slow 45s linear infinite;
+  --animate-pulse-soft: pulse-soft 5s ease-in-out infinite;
+  --animate-loader-bar: loader-bar 1.2s ease-in-out infinite;
+
+  @keyframes loader-bar {
+    0% {
+      transform: translateX(-110%);
+    }
+    100% {
+      transform: translateX(310%);
+    }
+  }
 
   @keyframes fade-in-up {
     from {
@@ -101,10 +113,31 @@
   @keyframes float {
     0%,
     100% {
-      transform: translate(-50%, -50%) translateY(0) rotate(0deg);
+      transform: translateY(0);
     }
     50% {
-      transform: translate(-50%, -50%) translateY(-14px) rotate(5deg);
+      transform: translateY(-10px);
+    }
+  }
+
+  /*
+   * Пульсация меняет только масштаб и сохраняет сдвиг translate(-50%, -50%),
+   * которым иконка центрируется в своей точке на окружности. Если про этот
+   * сдвиг забыть, иконки «прыгнут» из своих позиций.
+   */
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.07);
+    }
+  }
+
+  @keyframes spin-slow {
+    to {
+      transform: rotate(360deg);
     }
   }
 
@@ -119,9 +152,24 @@
 }
 
 /*
- * Пользователь может запретить анимации в настройках системы. Уважаем это:
- * содержимое остаётся видимым, просто перестаёт двигаться.
+ * Появление блоков при прокрутке.
+ *
+ * Скрываем блоки только тогда, когда документ помечен классом js: его ставит
+ * крошечный скрипт в layout. Без JavaScript класс не появится, и содержимое
+ * останется видимым — иначе страница была бы пустой для тех, у кого скрипты
+ * отключены.
  */
+html.js [data-reveal="false"] {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+html.js [data-reveal="true"] {
+  animation: fade-in-up 0.7s ease-out both;
+}
+
+/* Пользователь может запретить анимации в настройках системы. Уважаем это:
+   содержимое остаётся видимым, просто перестаёт двигаться. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
