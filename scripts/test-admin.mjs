@@ -482,6 +482,7 @@ async function main() {
   skillFields.set("name", TEST_SKILL_NAME);
   skillFields.set("description", "Навык, созданный автоматической проверкой.");
   skillFields.set("category", "SOFT");
+  skillFields.set("level", "BASIC");
   skillFields.set("icon", "");
   skillFields.set("position", "99");
 
@@ -511,6 +512,74 @@ async function main() {
     check(
       "навык удалён и пропал с главной",
       !homeAfterDelete.text.includes(TEST_SKILL_NAME),
+    );
+  }
+
+  section("11. Форма обратной связи");
+  const contactPage = await get("/contact");
+  check("страница контактов открывается", contactPage.response.status === 200);
+  check(
+    "форма содержит нужные поля",
+    contactPage.text.includes('name="message"') &&
+      contactPage.text.includes('name="email"'),
+  );
+  check(
+    "ловушка для ботов скрыта в разметке",
+    contactPage.text.includes('name="company"'),
+  );
+
+  const contactFields = extractHiddenFields(contactPage.text);
+  contactFields.set("name", "Проверка формы");
+  contactFields.set("email", "e2e-check@example.com");
+  contactFields.set("message", "Сообщение от автоматической проверки.");
+  contactFields.set("company", "");
+
+  const submitted = await postForm("/contact", contactFields);
+  check(
+    "сообщение принято",
+    submitted.response.status < 400,
+    `статус ${submitted.response.status}`,
+  );
+  check(
+    "показано подтверждение",
+    submitted.text.includes("Сообщение отправлено"),
+  );
+
+  const messagesPage = await get("/admin/messages", cookie);
+  check(
+    "сообщение видно в админке",
+    messagesPage.text.includes("e2e-check@example.com"),
+  );
+
+  // Ловушка: бот заполняет скрытое поле — сообщение сохраняться не должно,
+  // но ответ ему уходит такой же, как человеку.
+  const botFields = extractHiddenFields(contactPage.text);
+  botFields.set("name", "Бот");
+  botFields.set("email", "bot@example.com");
+  botFields.set("message", "Это спам-сообщение от автоматического сборщика.");
+  botFields.set("company", "Спам-фирма");
+
+  await postForm("/contact", botFields);
+  const messagesAfterBot = await get("/admin/messages", cookie);
+  check(
+    "ловушка отсекает бота",
+    !messagesAfterBot.text.includes("bot@example.com"),
+  );
+
+  // Убираем за собой, иначе тест будет копить сообщения
+  const messageId = findIdByName(
+    messagesAfterBot.text,
+    "e2e-check@example.com",
+  );
+  if (messageId) {
+    const deleteMessageFields = extractHiddenFields(messagesAfterBot.text);
+    deleteMessageFields.set("id", messageId);
+    await postForm("/admin/messages", deleteMessageFields, cookie);
+
+    const messagesAfterCleanup = await get("/admin/messages", cookie);
+    check(
+      "тестовое сообщение удалено",
+      !messagesAfterCleanup.text.includes("e2e-check@example.com"),
     );
   }
 

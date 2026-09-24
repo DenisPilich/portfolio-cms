@@ -21,6 +21,7 @@ export type SkillFormValues = {
   name: string;
   description: string | null;
   category: "HARD" | "SOFT";
+  level: "LEARNING" | "BASIC" | "CONFIDENT";
   icon: string | null;
   position: number;
 };
@@ -49,7 +50,7 @@ export function SkillForm({
 
       <FormMessage status={state.status} message={state.message} />
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="name">Название</Label>
           <Input
@@ -73,6 +74,22 @@ export function SkillForm({
             <option value="SOFT">Soft skill — качество</option>
           </Select>
           <FieldError errors={state.fieldErrors?.category} />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="level" hint="у soft не виден">
+            Уровень
+          </Label>
+          <Select
+            id="level"
+            name="level"
+            defaultValue={defaultValues?.level ?? "BASIC"}
+          >
+            <option value="LEARNING">Изучаю — только разбираюсь</option>
+            <option value="BASIC">Основы — применял в учебном</option>
+            <option value="CONFIDENT">Уверенно — делал проекты</option>
+          </Select>
+          <FieldError errors={state.fieldErrors?.level} />
         </div>
       </div>
 

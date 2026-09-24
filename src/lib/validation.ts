@@ -107,6 +107,14 @@ const skillCategorySchema = z.enum(["HARD", "SOFT"], {
   message: "Выберите категорию",
 });
 
+/**
+ * Уровень владения. Показывается только у hard-навыков: у soft-качеств
+ * градация «знаю основы» звучала бы странно.
+ */
+const skillLevelSchema = z.enum(["LEARNING", "BASIC", "CONFIDENT"], {
+  message: "Выберите уровень",
+});
+
 /** Пустая строка превращается в null: в базе поле необязательное. */
 const optionalTextSchema = z
   .string()
@@ -122,6 +130,7 @@ export const skillSchema = z.object({
     .max(60, "Не больше 60 символов"),
   description: optionalTextSchema,
   category: skillCategorySchema,
+  level: skillLevelSchema,
   /**
    * Ключ иконки из набора Simple Icons: «react», «nextdotjs».
    * Свободный текст, а не список значений: набор пополняется, и жёсткий
@@ -139,7 +148,31 @@ export const skillSchema = z.object({
     .max(999),
 });
 
+/**
+ * Сообщение из формы обратной связи.
+ *
+ * Поле company — ловушка для автоматических сборщиков: человек его не видит
+ * и не заполняет, а бот заполняет все поля подряд. Если оно не пустое,
+ * сообщение отбрасывается, а отправителю всё равно показывается успех:
+ * иначе бот поймёт, что его раскусили, и попробует иначе.
+ */
+export const contactSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Как к вам обращаться?")
+    .max(80, "Не больше 80 символов"),
+  email: z.email("Введите корректный email"),
+  message: z
+    .string()
+    .trim()
+    .min(10, "Сообщение не короче 10 символов")
+    .max(2000, "Не больше 2000 символов"),
+  company: z.string().optional(),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProjectInput = z.infer<typeof projectSchema>;
 export type PostInput = z.infer<typeof postSchema>;
 export type SkillInput = z.infer<typeof skillSchema>;
+export type ContactInput = z.infer<typeof contactSchema>;

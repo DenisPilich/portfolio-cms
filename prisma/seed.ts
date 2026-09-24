@@ -235,25 +235,34 @@ Prisma 7 отказалась от Rust-движка запросов в пол�
     description?: string;
     icon?: string;
     category: "HARD" | "SOFT";
+    level?: "LEARNING" | "BASIC" | "CONFIDENT";
     position: number;
   };
 
+  /**
+   * Уровни расставлены честно, а не «всё уверенно».
+   *
+   * Для начинающего специалиста длинный список технологий без градации
+   * выглядит неубедительно: читающий понимает, что всё это на одном уровне
+   * за короткий срок освоить нельзя. Указание уровня работает наоборот
+   * в плюс — видно, что человек оценивает себя трезво. Логотипа Zustand
+   * в наборе Simple Icons нет, поэтому у него иконка не задана: на сайте
+   * покажется монограмма «Zu».
+   */
   const skills: SeedSkill[] = [
-    { name: "TypeScript", icon: "typescript", category: "HARD", position: 1 },
-    { name: "React", icon: "react", category: "HARD", position: 2 },
-    { name: "Next.js", icon: "nextdotjs", category: "HARD", position: 3 },
-    { name: "Node.js", icon: "nodedotjs", category: "HARD", position: 4 },
-    { name: "PostgreSQL", icon: "postgresql", category: "HARD", position: 5 },
-    { name: "Prisma", icon: "prisma", category: "HARD", position: 6 },
-    { name: "Tailwind CSS", icon: "tailwindcss", category: "HARD", position: 7 },
-    { name: "Docker", icon: "docker", category: "HARD", position: 8 },
-    { name: "Git", icon: "git", category: "HARD", position: 9 },
-    // Логотипа Zustand в наборе Simple Icons нет, поэтому иконка не задана:
-    // на сайте вместо неё покажется монограмма «Zu».
-    { name: "Zustand", category: "HARD", position: 10 },
-    { name: "Redux", icon: "redux", category: "HARD", position: 11 },
-    { name: "Laravel", icon: "laravel", category: "HARD", position: 12 },
-    { name: "Vite", icon: "vite", category: "HARD", position: 13 },
+    { name: "TypeScript", icon: "typescript", category: "HARD", level: "CONFIDENT", position: 1 },
+    { name: "React", icon: "react", category: "HARD", level: "CONFIDENT", position: 2 },
+    { name: "Next.js", icon: "nextdotjs", category: "HARD", level: "CONFIDENT", position: 3 },
+    { name: "Tailwind CSS", icon: "tailwindcss", category: "HARD", level: "CONFIDENT", position: 4 },
+    { name: "Prisma", icon: "prisma", category: "HARD", level: "CONFIDENT", position: 5 },
+    { name: "Git", icon: "git", category: "HARD", level: "CONFIDENT", position: 6 },
+    { name: "Node.js", icon: "nodedotjs", category: "HARD", level: "BASIC", position: 7 },
+    { name: "PostgreSQL", icon: "postgresql", category: "HARD", level: "BASIC", position: 8 },
+    { name: "Redux", icon: "redux", category: "HARD", level: "BASIC", position: 9 },
+    { name: "Zustand", category: "HARD", level: "BASIC", position: 10 },
+    { name: "Vite", icon: "vite", category: "HARD", level: "BASIC", position: 11 },
+    { name: "Docker", icon: "docker", category: "HARD", level: "LEARNING", position: 12 },
+    { name: "Laravel", icon: "laravel", category: "HARD", level: "LEARNING", position: 13 },
     {
       name: "Работа в команде",
       description:
