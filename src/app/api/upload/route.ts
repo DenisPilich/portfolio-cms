@@ -38,6 +38,27 @@ function sanitizeFileName(name: string): string {
   return cleaned.length > 0 ? cleaned : "image";
 }
 
+/**
+ * Проверяет, что хранилище вообще подключено.
+ *
+ * Способов два, и оба законные. Статический токен BLOB_READ_WRITE_TOKEN
+ * удобен вне Vercel — например, в CI или на своём сервере. Но на самой
+ * Vercel по умолчанию используется OIDC: вместо долгоживущего секрета
+ * выдаются BLOB_STORE_ID и короткоживущий VERCEL_OIDC_TOKEN, который
+ * SDK обновляет сам.
+ *
+ * Проверять только токен было бы ошибкой: при подключении через OIDC
+ * его в окружении нет, и загрузка отвечала бы «хранилище не настроено»,
+ * хотя всё работает.
+ */
+function isBlobConfigured(): boolean {
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    return true;
+  }
+
+  return Boolean(process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN);
+}
+
 export async function POST(request: Request) {
   const user = await getSessionUser();
 
@@ -71,11 +92,11 @@ export async function POST(request: Request) {
 
   // Настройки окружения проверяем после входных данных: сначала убеждаемся,
   // что запрос корректен, и только потом выясняем, готово ли хранилище.
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+  if (!isBlobConfigured()) {
     return Response.json(
       {
         error:
-          "Хранилище не настроено. Добавьте BLOB_READ_WRITE_TOKEN в переменные окружения.",
+          "Хранилище не настроено. Подключите Vercel Blob к проекту или добавьте BLOB_READ_WRITE_TOKEN в переменные окружения.",
       },
       { status: 503 },
     );
