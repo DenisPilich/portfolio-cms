@@ -25,7 +25,6 @@ export const siteConfig = {
   locale: "ru_RU",
   nav: [
     { href: "/projects", label: "Проекты" },
-    { href: "/blog", label: "Блог" },
     { href: "/about", label: "Обо мне" },
     { href: "/search", label: "Поиск" },
     { href: "/contact", label: "Контакты" },

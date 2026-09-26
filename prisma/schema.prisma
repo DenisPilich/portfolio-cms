@@ -31,7 +31,6 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  posts    Post[]
   projects Project[]
 
   @@map("users")
@@ -67,45 +66,6 @@ model Project {
   /// Составной индекс под запрос «опубликованные, в нужном порядке».
   @@index([published, position])
   @@map("projects")
-}
-
-/// Статья в блоге.
-model Post {
-  id         String  @id @default(cuid())
-  slug       String  @unique
-  title      String
-  excerpt    String
-  content    String
-  coverImage String?
-
-  published   Boolean   @default(false)
-  publishedAt DateTime?
-  views       Int       @default(0)
-  readingTime Int       @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  authorId String?
-  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
-
-  /// Связь многие-ко-многим. Prisma сама создаст таблицу-связку _PostToTag.
-  tags Tag[]
-
-  @@index([published, publishedAt])
-  @@map("posts")
-}
-
-/// Тег статьи.
-model Tag {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  name      String
-  createdAt DateTime @default(now())
-
-  posts Post[]
-
-  @@map("tags")
 }
 
 /// Сообщение из формы обратной связи.

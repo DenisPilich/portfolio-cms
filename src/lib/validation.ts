@@ -79,29 +79,6 @@ export const projectSchema = z.object({
     .max(999),
 });
 
-export const postSchema = z.object({
-  title: z.string().trim().min(3, "Минимум 3 символа").max(160),
-  slug: slugSchema,
-  excerpt: z
-    .string()
-    .trim()
-    .min(10, "Краткое описание — хотя бы 10 символов")
-    .max(400, "Не больше 400 символов"),
-  content: z.string().trim().min(20, "Содержимое не короче 20 символов"),
-  coverImage: optionalUrlSchema,
-  /** Теги приходят строкой через запятую: «Next.js, Prisma». */
-  tags: z
-    .string()
-    .trim()
-    .transform((value) =>
-      value
-        .split(",")
-        .map((item) => item.trim())
-        .filter((item) => item.length > 0),
-    ),
-  published: checkboxSchema,
-});
-
 /** Категория навыка. Значения совпадают с enum в схеме базы. */
 const skillCategorySchema = z.enum(["HARD", "SOFT"], {
   message: "Выберите категорию",
@@ -173,6 +150,5 @@ export const contactSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ProjectInput = z.infer<typeof projectSchema>;
-export type PostInput = z.infer<typeof postSchema>;
 export type SkillInput = z.infer<typeof skillSchema>;
 export type ContactInput = z.infer<typeof contactSchema>;

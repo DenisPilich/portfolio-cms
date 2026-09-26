@@ -20,7 +20,6 @@ const PASSWORD = process.env.ADMIN_PASSWORD ?? "admin12345";
 const TEST_SLUG = "e2e-test-project";
 const TEST_TITLE = "Проект для проверки";
 const UPDATED_TITLE = "Проект для проверки (изменён)";
-const TEST_POST_SLUG = "e2e-test-post";
 const TEST_SKILL_NAME = "Навык для проверки";
 
 let failures = 0;
@@ -169,17 +168,7 @@ async function cleanupTestRecords(cookie) {
     await postForm("/admin/projects", fields, cookie);
   }
 
-  const postList = await get("/admin/posts", cookie);
-  const postId = extractRecordIds(postList.text, "posts").get(TEST_POST_SLUG);
-
-  if (postId) {
-    const fields = extractHiddenFields(postList.text);
-    fields.set("id", postId);
-    fields.set("slug", TEST_POST_SLUG);
-    await postForm("/admin/posts", fields, cookie);
-  }
-
-  return Boolean(projectId) || Boolean(postId);
+  return Boolean(projectId);
 }
 
 async function login() {
@@ -198,7 +187,7 @@ async function main() {
   console.log(`Проверяю ${BASE_URL}`);
 
   section("1. Доступ к админке без сессии");
-  for (const path of ["/admin", "/admin/projects", "/admin/posts"]) {
+  for (const path of ["/admin", "/admin/projects", "/admin/skills"]) {
     const { response } = await get(path);
     check(
       `${path} не отдаётся без входа`,
@@ -314,37 +303,6 @@ async function main() {
     );
   }
 
-  section("6. Статья с тегами");
-  const newPostPage = await get("/admin/posts/new", cookie);
-  const postFields = extractHiddenFields(newPostPage.text);
-  postFields.set("title", "Статья для проверки");
-  postFields.set("slug", TEST_POST_SLUG);
-  postFields.set("excerpt", "Статья, созданная автоматической проверкой.");
-  postFields.set(
-    "content",
-    "## Раздел\n\nТекст статьи, созданной интеграционным тестом для проверки тегов.",
-  );
-  postFields.set("coverImage", "");
-  postFields.set("tags", "E2E-проверка, Next.js");
-  postFields.set("published", "on");
-
-  await postForm("/admin/posts/new", postFields, cookie);
-
-  const publicPost = await get(`/blog/${TEST_POST_SLUG}`);
-  check(
-    "статья открывается на публичной странице",
-    publicPost.response.status === 200,
-    `статус ${publicPost.response.status}`,
-  );
-  check(
-    "время чтения рассчитано",
-    publicPost.text.includes("мин чтения"),
-  );
-  check(
-    "тег создан автоматически",
-    publicPost.text.includes("E2E-проверка"),
-  );
-
   section("7. Удаление созданных записей");
   const listBeforeDelete = await get("/admin/projects", cookie);
   const deleteFields = extractHiddenFields(listBeforeDelete.text);
@@ -371,31 +329,17 @@ async function main() {
     );
   }
 
-  const postList = await get("/admin/posts", cookie);
-  const postDeleteFields = extractHiddenFields(postList.text);
-  const postId = extractRecordIds(postList.text, "posts").get(TEST_POST_SLUG);
-
-  if (postId) {
-    postDeleteFields.set("id", postId);
-    postDeleteFields.set("slug", TEST_POST_SLUG);
-    await postForm("/admin/posts", postDeleteFields, cookie);
-
-    const publicPostAfter = await get(`/blog/${TEST_POST_SLUG}`);
-    check(
-      "статья удалена",
-      publicPostAfter.response.status === 404,
-      `статус ${publicPostAfter.response.status}`,
-    );
-  }
-
   section("8. Поиск");
-  const searchFound = await get(`/search?q=${encodeURIComponent("кэш")}`);
-  check("поиск находит статью", searchFound.text.includes("кэш"));
+  const searchFound = await get(`/search?q=${encodeURIComponent("Prisma")}`);
   check(
-    "поиск ищет и по проектам",
-    (await get(`/search?q=${encodeURIComponent("Prisma")}`)).text.includes(
-      "Проекты",
-    ),
+    "поиск находит проект по названию стека",
+    searchFound.text.includes("Портфолио с собственной CMS"),
+  );
+
+  const searchByTitle = await get(`/search?q=${encodeURIComponent("планировщик")}`);
+  check(
+    "поиск находит проект по названию",
+    searchByTitle.text.includes("Планировщик задач"),
   );
 
   const searchEmpty = await get(`/search?q=${encodeURIComponent("ъъъъъъ")}`);

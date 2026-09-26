@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { loginSchema, postSchema, projectSchema } from "@/lib/validation";
+import { loginSchema, contactSchema, projectSchema } from "@/lib/validation";
 
 /**
  * Валидный набор полей проекта — от него отталкиваются проверки,
@@ -97,30 +97,38 @@ describe("projectSchema", () => {
   });
 });
 
-describe("postSchema", () => {
-  const validPost = {
-    title: "Как работает кэш",
-    slug: "nextjs-cache",
-    excerpt: "Разбираем слои кэширования в Next.js.",
-    content: "Достаточно длинный текст статьи для прохождения проверки.",
-    coverImage: "",
-    tags: "Next.js, Prisma",
-    published: "on",
+describe("contactSchema", () => {
+  const validMessage = {
+    name: "Иван",
+    email: "ivan@example.com",
+    message: "Здравствуйте! Хочу обсудить проект.",
+    company: "",
   };
 
-  it("принимает корректные данные", () => {
-    expect(postSchema.safeParse(validPost).success).toBe(true);
+  it("принимает корректное сообщение", () => {
+    expect(contactSchema.safeParse(validMessage).success).toBe(true);
   });
 
-  it("разбирает теги и сохраняет исходное написание", () => {
-    const result = postSchema.parse(validPost);
-    // Регистр не приводится к нижнему: «Next.js» должно остаться читаемым
-    // названием тега, а slug для него считается отдельно.
-    expect(result.tags).toEqual(["Next.js", "Prisma"]);
+  it("требует осмысленную длину сообщения", () => {
+    expect(
+      contactSchema.safeParse({ ...validMessage, message: "привет" }).success,
+    ).toBe(false);
   });
 
-  it("пропускает пустой список тегов", () => {
-    expect(postSchema.parse({ ...validPost, tags: "" }).tags).toEqual([]);
+  it("требует корректный email", () => {
+    expect(
+      contactSchema.safeParse({ ...validMessage, email: "не-почта" }).success,
+    ).toBe(false);
+  });
+
+  it("пропускает скрытое поле-ловушку", () => {
+    // Поле необязательное: человек его не заполняет, поэтому в схеме
+    // оно должно спокойно проходить проверку.
+    const result = contactSchema.safeParse({
+      ...validMessage,
+      company: undefined,
+    });
+    expect(result.success).toBe(true);
   });
 });
 

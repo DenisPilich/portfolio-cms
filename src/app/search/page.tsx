@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import { Search } from "lucide-react";
 import { ProjectCard } from "@/components/project-card";
-import { PostCard } from "@/components/post-card";
-import { MIN_SEARCH_LENGTH, searchContent } from "@/lib/queries";
+import { MIN_SEARCH_LENGTH, searchProjects } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Поиск",
-  description: "Поиск по проектам и статьям.",
+  description: "Поиск по проектам.",
   robots: { index: false, follow: true },
 };
 
@@ -17,8 +16,7 @@ export default async function SearchPage({
   const rawQuery = Array.isArray(params.q) ? params.q[0] : (params.q ?? "");
   const query = rawQuery.trim();
 
-  const { projects, posts } = await searchContent(query);
-  const total = projects.length + posts.length;
+  const { projects } = await searchProjects(query);
   const tooShort = query.length > 0 && query.length < MIN_SEARCH_LENGTH;
   const searched = query.length >= MIN_SEARCH_LENGTH;
 
@@ -26,7 +24,7 @@ export default async function SearchPage({
     <div className="mx-auto w-full max-w-5xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight">Поиск</h1>
       <p className="mt-4 max-w-2xl text-pretty text-muted-foreground">
-        Ищет по названиям и тексту проектов и статей.
+        Ищет по названиям, описанию и стеку проектов.
       </p>
 
       {/*
@@ -42,7 +40,7 @@ export default async function SearchPage({
           name="q"
           type="search"
           defaultValue={query}
-          placeholder="Например: кэш"
+          placeholder="Например: Next.js"
           autoComplete="off"
           className="w-full max-w-md rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary"
         />
@@ -61,7 +59,7 @@ export default async function SearchPage({
         </p>
       )}
 
-      {searched && total === 0 && (
+      {searched && projects.length === 0 && (
         <p className="mt-8 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
           По запросу «{query}» ничего не нашлось.
         </p>
@@ -78,22 +76,6 @@ export default async function SearchPage({
           <div className="mt-6 grid gap-6 sm:grid-cols-2">
             {projects.map((project) => (
               <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {posts.length > 0 && (
-        <section className="mt-12">
-          <h2 className="font-medium">
-            Статьи{" "}
-            <span className="font-mono text-sm text-muted-foreground">
-              {posts.length}
-            </span>
-          </h2>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
             ))}
           </div>
         </section>
