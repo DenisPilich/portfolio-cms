@@ -11,7 +11,14 @@
  *
  * Запуск (сервер должен быть поднят):
  *   node scripts/test-admin.mjs
+ *
+ * Пароль администратора берётся из переменной окружения ADMIN_PASSWORD,
+ * иначе из файла .env. Значение по умолчанию подходит только для чистой
+ * базы сразу после сида — если пароль меняли, впишите свой в .env:
+ *   ADMIN_PASSWORD="ваш_пароль"
  */
+
+import "dotenv/config";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 const EMAIL = process.env.ADMIN_EMAIL ?? "admin@example.com";

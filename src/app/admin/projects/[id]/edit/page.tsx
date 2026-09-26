@@ -55,6 +55,7 @@ export default async function EditProjectPage({
             slug: project.slug,
             summary: project.summary,
             content: project.content,
+            coverImage: project.coverImage,
             techStack: project.techStack,
             repoUrl: project.repoUrl,
             liveUrl: project.liveUrl,

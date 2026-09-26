@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { slugify } from "@/lib/slug";
+import { ImageUploader } from "@/components/admin/image-uploader";
 import {
   Checkbox,
   FieldError,
@@ -22,6 +23,7 @@ export type ProjectFormValues = {
   slug: string;
   summary: string;
   content: string;
+  coverImage: string | null;
   techStack: string[];
   repoUrl: string | null;
   liveUrl: string | null;
@@ -141,6 +143,19 @@ export function ProjectForm({
         />
         <FieldError errors={state.fieldErrors?.techStack} />
       </div>
+
+      {/*
+        Обложка показывается в карточке проекта на главной и на странице
+        «Проекты». Без неё там стоит заглушка, поэтому поле стоит выше
+        ссылок — это то, что заполняют в первую очередь.
+      */}
+      <ImageUploader
+        name="coverImage"
+        label="Обложка проекта"
+        hint="необязательно"
+        defaultValue={defaultValues?.coverImage}
+        errors={state.fieldErrors?.coverImage}
+      />
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2">

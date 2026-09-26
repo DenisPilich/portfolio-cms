@@ -67,6 +67,8 @@ export const projectSchema = z.object({
     .min(10, "Коротко опишите проект — хотя бы 10 символов")
     .max(300, "Не больше 300 символов"),
   content: z.string().trim().min(20, "Содержимое не короче 20 символов"),
+  /** Ссылка на обложку. Загружается в хранилище или вставляется вручную. */
+  coverImage: optionalUrlSchema,
   techStack: techStackSchema,
   repoUrl: optionalUrlSchema,
   liveUrl: optionalUrlSchema,
