@@ -59,6 +59,28 @@ function isBlobConfigured(): boolean {
   return Boolean(process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN);
 }
 
+/**
+ * Перечисляет отсутствующие переменные хранилища.
+ *
+ * Сообщение видит только вошедший администратор, значения не раскрываются —
+ * лишь имена. Это избавляет от перебора догадок: локальный запуск и деплой
+ * отличаются ровно набором переменных окружения, и полезно сразу знать,
+ * какой именно не хватает.
+ */
+function describeMissingBlobVariables(): string {
+  const candidates = [
+    "BLOB_READ_WRITE_TOKEN",
+    "BLOB_STORE_ID",
+    "VERCEL_OIDC_TOKEN",
+  ];
+
+  const missing = candidates.filter((name) => !process.env[name]);
+
+  // Достаточно одной работающей связки, поэтому перечисляем все отсутствующие
+  // имена: если чего-то нет — будет видно, чего именно.
+  return missing.length > 0 ? missing.join(", ") : "неизвестно";
+}
+
 export async function POST(request: Request) {
   const user = await getSessionUser();
 
@@ -95,8 +117,7 @@ export async function POST(request: Request) {
   if (!isBlobConfigured()) {
     return Response.json(
       {
-        error:
-          "Хранилище не настроено. Подключите Vercel Blob к проекту или добавьте BLOB_READ_WRITE_TOKEN в переменные окружения.",
+        error: `Хранилище не настроено. Отсутствуют переменные: ${describeMissingBlobVariables()}. Подключите Vercel Blob к проекту и сделайте Redeploy.`,
       },
       { status: 503 },
     );
