@@ -31,7 +31,7 @@ export default async function SearchPage({
         Обычная GET-форма: запрос уходит в адресную строку, поэтому ссылкой
         на результаты можно поделиться, а страница работает и без JavaScript.
       */}
-      <form action="/search" method="get" className="mt-8 flex gap-2">
+      <form action="/search" method="get" className="mt-8 flex flex-wrap gap-2">
         <label htmlFor="q" className="sr-only">
           Search query
         </label>
@@ -42,7 +42,7 @@ export default async function SearchPage({
           defaultValue={query}
           placeholder="For example: Next.js"
           autoComplete="off"
-          className="w-full max-w-md rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary"
+          className="min-w-0 flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary sm:max-w-md"
         />
         <button
           type="submit"

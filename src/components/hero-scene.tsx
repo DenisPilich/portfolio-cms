@@ -18,6 +18,13 @@ import { TechIcon } from "@/components/tech-icon";
  * взаимно уничтожаются, логотип остаётся вертикальным, а позиция
  * на окружности меняется.
  *
+ * Обрезка по краям (overflow-hidden) здесь обязательна, и вот почему.
+ * Вращаются квадратные блоки — сам SVG и контейнер с иконками. При повороте
+ * на 45 градусов углы квадрата выходят за его исходные границы примерно
+ * на 21% стороны. Появляется лишняя область, и браузер добавляет
+ * горизонтальную прокрутку. На широком экране вылет прячется в отступах
+ * макета, а на узком, где сцена занимает всю ширину, полоса появляется.
+ *
  * Наведение мышью движение не останавливает: сцена живёт своей жизнью
  * и не должна зависеть от того, где оказался курсор.
  */
@@ -41,8 +48,9 @@ const ORBIT_RADIUS = 39;
 
 export function HeroScene() {
   return (
-    /* Внешний блок задаёт ширину, распорка внутри — высоту, равную ширине */
-    <div className="relative mx-auto w-full max-w-sm select-none">
+    /* Внешний блок задаёт ширину, распорка внутри — высоту, равную ширине.
+       overflow-hidden гасит вылет углов при вращении — см. комментарий выше. */
+    <div className="relative mx-auto w-full max-w-sm overflow-hidden select-none">
       <div className="pt-[100%]" aria-hidden />
 
       <div className="absolute inset-0">
@@ -118,7 +126,9 @@ export function HeroScene() {
           </span>
         </div>
 
-        <div className="absolute -bottom-2 left-0 w-full overflow-hidden">
+        {/* Строка прижата к низу без отрицательного отступа: он вывел бы её
+            за границу блока, а та теперь обрезается */}
+        <div className="absolute bottom-0 left-0 w-full overflow-hidden">
           <div className="flex w-max animate-scroll-binary font-mono text-[10px] whitespace-nowrap text-muted-foreground/40">
             <span>{BINARY_STRING.repeat(4)}</span>
             {/* Вторая копия нужна для бесшовного цикла: когда первая уезжает
