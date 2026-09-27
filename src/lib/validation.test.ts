@@ -11,6 +11,7 @@ const validProject = {
   slug: "portfolio-cms",
   summary: "Сайт с собственной админкой и базой данных.",
   content: "Достаточно длинное содержимое проекта для прохождения проверки.",
+  coverImage: "",
   techStack: "Next.js, Prisma",
   repoUrl: "",
   liveUrl: "",
