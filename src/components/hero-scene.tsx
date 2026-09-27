@@ -18,9 +18,8 @@ import { TechIcon } from "@/components/tech-icon";
  * взаимно уничтожаются, логотип остаётся вертикальным, а позиция
  * на окружности меняется.
  *
- * Наведение ставит анимацию на паузу — так иконки можно спокойно
- * рассмотреть. Останавливать нужно все вращающиеся элементы сразу,
- * иначе компенсация перестанет совпадать с кольцом и логотипы поедут.
+ * Наведение мышью движение не останавливает: сцена живёт своей жизнью
+ * и не должна зависеть от того, где оказался курсор.
  */
 const ORBIT_TECH = [
   "TypeScript",
@@ -40,20 +39,17 @@ const BINARY_STRING =
 /** Радиус кольца в процентах от стороны квадрата. */
 const ORBIT_RADIUS = 39;
 
-/** Классы, которые останавливают вращение при наведении на сцену. */
-const PAUSE_ON_HOVER = "group-hover:[animation-play-state:paused]";
-
 export function HeroScene() {
   return (
     /* Внешний блок задаёт ширину, распорка внутри — высоту, равную ширине */
-    <div className="group relative mx-auto w-full max-w-sm select-none">
+    <div className="relative mx-auto w-full max-w-sm select-none">
       <div className="pt-[100%]" aria-hidden />
 
       <div className="absolute inset-0">
         {/* Пунктирная орбита: вращается она, а не иконки */}
         <svg
           viewBox="0 0 200 200"
-          className={`absolute inset-0 size-full animate-spin-slow text-border ${PAUSE_ON_HOVER}`}
+          className="absolute inset-0 size-full animate-spin-slow text-border"
           aria-hidden
         >
           <circle
@@ -84,9 +80,7 @@ export function HeroScene() {
         </svg>
 
         {/* Иконки вращаются вместе с кольцом: та же длительность, что у орбиты */}
-        <div
-          className={`absolute inset-0 animate-spin-slow ${PAUSE_ON_HOVER}`}
-        >
+        <div className="absolute inset-0 animate-spin-slow">
           {ORBIT_TECH.map((tech, index) => {
             // Углы распределены равномерно, первый — строго сверху
             const angle =
@@ -102,9 +96,7 @@ export function HeroScene() {
                 className="absolute -translate-x-1/2 -translate-y-1/2"
               >
                 {/* Обратный поворот: возвращает логотипу вертикальное положение */}
-                <span
-                  className={`block animate-spin-reverse ${PAUSE_ON_HOVER}`}
-                >
+                <span className="block animate-spin-reverse">
                   <span
                     style={{
                       // Разные задержки делают пульсацию несинхронной
