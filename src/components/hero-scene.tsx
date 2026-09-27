@@ -10,9 +10,17 @@ import { TechIcon } from "@/components/tech-icon";
  * её высота всегда равна ширине родителя, и квадрат получается гарантированно,
  * независимо от того, сколько места дал макет.
  *
- * Движение отдано пунктирной орбите, которая вращается. Сами иконки
- * не смещаются и не масштабируются — меняется только их прозрачность,
- * а она на положение не влияет.
+ * Движение. Кольцо и иконки вращаются одним и тем же движением, поэтому
+ * выглядят единым целым. Но у вращения есть побочный эффект: вместе
+ * с окружностью поворачиваются и логотипы, а React вверх ногами — это
+ * не то, что хочется показать. Поэтому каждая иконка крутится ещё раз,
+ * в обратную сторону и ровно с той же длительностью: два поворота
+ * взаимно уничтожаются, логотип остаётся вертикальным, а позиция
+ * на окружности меняется.
+ *
+ * Наведение ставит анимацию на паузу — так иконки можно спокойно
+ * рассмотреть. Останавливать нужно все вращающиеся элементы сразу,
+ * иначе компенсация перестанет совпадать с кольцом и логотипы поедут.
  */
 const ORBIT_TECH = [
   "TypeScript",
@@ -32,17 +40,20 @@ const BINARY_STRING =
 /** Радиус кольца в процентах от стороны квадрата. */
 const ORBIT_RADIUS = 39;
 
+/** Классы, которые останавливают вращение при наведении на сцену. */
+const PAUSE_ON_HOVER = "group-hover:[animation-play-state:paused]";
+
 export function HeroScene() {
   return (
     /* Внешний блок задаёт ширину, распорка внутри — высоту, равную ширине */
-    <div className="relative mx-auto w-full max-w-sm select-none">
+    <div className="group relative mx-auto w-full max-w-sm select-none">
       <div className="pt-[100%]" aria-hidden />
 
       <div className="absolute inset-0">
         {/* Пунктирная орбита: вращается она, а не иконки */}
         <svg
           viewBox="0 0 200 200"
-          className="absolute inset-0 size-full animate-spin-slow text-border"
+          className={`absolute inset-0 size-full animate-spin-slow text-border ${PAUSE_ON_HOVER}`}
           aria-hidden
         >
           <circle
@@ -72,30 +83,44 @@ export function HeroScene() {
           />
         </svg>
 
-        {ORBIT_TECH.map((tech, index) => {
-          // Углы распределены равномерно, первый — строго сверху
-          const angle = (index / ORBIT_TECH.length) * Math.PI * 2 - Math.PI / 2;
-          const left = 50 + Math.cos(angle) * ORBIT_RADIUS;
-          const top = 50 + Math.sin(angle) * ORBIT_RADIUS;
+        {/* Иконки вращаются вместе с кольцом: та же длительность, что у орбиты */}
+        <div
+          className={`absolute inset-0 animate-spin-slow ${PAUSE_ON_HOVER}`}
+        >
+          {ORBIT_TECH.map((tech, index) => {
+            // Углы распределены равномерно, первый — строго сверху
+            const angle =
+              (index / ORBIT_TECH.length) * Math.PI * 2 - Math.PI / 2;
+            const left = 50 + Math.cos(angle) * ORBIT_RADIUS;
+            const top = 50 + Math.sin(angle) * ORBIT_RADIUS;
 
-          return (
-            <span
-              key={tech}
-              title={tech}
-              style={{
-                left: `${left}%`,
-                top: `${top}%`,
-                // Разные задержки делают пульсацию несинхронной
-                animationDelay: `${index * 400}ms`,
-              }}
-              className="absolute flex size-11 -translate-x-1/2 -translate-y-1/2 animate-pulse-soft items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm"
-            >
-              <TechIcon name={tech} className="size-5" />
-            </span>
-          );
-        })}
+            return (
+              <span
+                key={tech}
+                title={tech}
+                style={{ left: `${left}%`, top: `${top}%` }}
+                className="absolute -translate-x-1/2 -translate-y-1/2"
+              >
+                {/* Обратный поворот: возвращает логотипу вертикальное положение */}
+                <span
+                  className={`block animate-spin-reverse ${PAUSE_ON_HOVER}`}
+                >
+                  <span
+                    style={{
+                      // Разные задержки делают пульсацию несинхронной
+                      animationDelay: `${index * 400}ms`,
+                    }}
+                    className="flex size-11 animate-pulse-soft items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm"
+                  >
+                    <TechIcon name={tech} className="size-5" />
+                  </span>
+                </span>
+              </span>
+            );
+          })}
+        </div>
 
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <span className="font-mono text-xl font-semibold text-primary">
             &lt;\&gt;
           </span>

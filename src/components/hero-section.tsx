@@ -13,7 +13,12 @@ import { HeroScene } from "@/components/hero-scene";
  * Компонент серверный: интерактивности нет, поэтому в бандл не попадает.
  */
 export function HeroSection() {
-  const sentence = `${siteConfig.hero.greeting} ${siteConfig.name}. ${siteConfig.hero.intro}`;
+  /*
+   * Приветствие стоит отдельно и появляется сразу: это не часть фразы,
+   * а обращение к читателю. Анимируется только то, что идёт после него,
+   * и отсчёт задержек начинается заново — с имени.
+   */
+  const sentence = `${siteConfig.name}. ${siteConfig.hero.intro}`;
   const words = sentence.split(" ");
 
   return (
@@ -23,6 +28,9 @@ export function HeroSection() {
     >
       <div>
         <h1 className="text-3xl leading-tight font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+          <span className="mr-[0.25em] inline-block">
+            {siteConfig.hero.greeting}
+          </span>
           {words.map((word, index) => (
             <span
               key={`${word}-${index}`}

@@ -87,6 +87,7 @@
   --animate-float: float 6s ease-in-out infinite;
   --animate-scroll-binary: scroll-binary 20s linear infinite;
   --animate-spin-slow: spin-slow 45s linear infinite;
+  --animate-spin-reverse: spin-reverse 45s linear infinite;
   --animate-pulse-soft: pulse-soft 5s ease-in-out infinite;
   --animate-loader-bar: loader-bar 1.2s ease-in-out infinite;
 
@@ -139,6 +140,20 @@
   @keyframes spin-slow {
     to {
       transform: rotate(360deg);
+    }
+  }
+
+  /*
+   * Обратное вращение той же длительности.
+   *
+   * Иконки едут по орбите вместе с кольцом, но логотипы должны оставаться
+   * ровными: без компенсации React повернулся бы вверх ногами на полпути.
+   * Одинаковое время и линейная функция обязательны — при любой разнице
+   * иконки начнут заметно отставать и «кивать».
+   */
+  @keyframes spin-reverse {
+    to {
+      transform: rotate(-360deg);
     }
   }
 
