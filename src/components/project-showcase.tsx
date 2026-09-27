@@ -6,7 +6,7 @@ import { ProjectImage } from "@/components/project-image";
 import type { Project } from "@/generated/prisma/client";
 
 /**
- * Карточка проекта для раздела «Портфолио».
+ * Карточка проекта для раздела «Portfolio».
  *
  * Слева снимок проекта, справа — дата, название, описание и стек.
  * Логотипы технологий выводятся иконками с подсказкой при наведении:
@@ -58,7 +58,7 @@ export function ProjectShowcase({ project }: { project: Project }) {
             href={`/projects/${project.slug}`}
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-            Подробнее →
+            Read more →
           </Link>
 
           {project.repoUrl && (
@@ -69,7 +69,7 @@ export function ProjectShowcase({ project }: { project: Project }) {
               className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
             >
               <Code2 className="size-4" aria-hidden />
-              Код
+              Code
             </a>
           )}
 
@@ -81,7 +81,7 @@ export function ProjectShowcase({ project }: { project: Project }) {
               className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
             >
               <ExternalLink className="size-4" aria-hidden />
-              Демо
+              Live demo
             </a>
           )}
         </div>

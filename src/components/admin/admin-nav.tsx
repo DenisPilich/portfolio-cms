@@ -4,17 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/admin", label: "Обзор" },
-  { href: "/admin/projects", label: "Проекты" },
-  { href: "/admin/skills", label: "Навыки" },
-  { href: "/admin/messages", label: "Сообщения" },
+  { href: "/admin", label: "Overview" },
+  { href: "/admin/projects", label: "Projects" },
+  { href: "/admin/skills", label: "Skills" },
+  { href: "/admin/messages", label: "Messages" },
 ] as const;
 
 export function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Навигация по админке">
+    <nav aria-label="Admin navigation">
       <ul className="flex flex-wrap items-center gap-1">
         {LINKS.map((link) => {
           // Раздел считается активным и на вложенных страницах: /admin/projects/new

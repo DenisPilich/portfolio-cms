@@ -25,14 +25,12 @@ export default async function AdminLayout({
         <AdminNav />
 
         <div className="flex items-center gap-4">
-          <span className="text-sm text-muted-foreground">
-            {user.name}
-          </span>
+          <span className="text-sm text-muted-foreground">{user.name}</span>
           <Link
             href="/"
             className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            На сайт
+            View site
             <ArrowUpRight className="size-3.5" aria-hidden />
           </Link>
           <form action={logoutAction}>
@@ -40,7 +38,7 @@ export default async function AdminLayout({
               type="submit"
               className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-muted"
             >
-              Выйти
+              Sign out
             </button>
           </form>
         </div>

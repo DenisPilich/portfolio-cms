@@ -37,7 +37,7 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Пароль</Label>
+        <Label htmlFor="password">Password</Label>
         <Input
           id="password"
           name="password"
@@ -53,7 +53,7 @@ export function LoginForm() {
         disabled={isPending}
         className="w-full rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
       >
-        {isPending ? "Проверяем..." : "Войти"}
+        {isPending ? "Checking..." : "Sign in"}
       </button>
     </form>
   );

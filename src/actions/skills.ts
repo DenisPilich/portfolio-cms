@@ -31,7 +31,7 @@ function validateSkillForm(formData: FormData) {
 function validationError(error: z.ZodError): ActionState {
   return {
     status: "error",
-    message: "Проверьте правильность заполнения полей",
+    message: "Please check the form fields",
     fieldErrors: z.flattenError(error).fieldErrors,
   };
 }
@@ -71,7 +71,7 @@ export async function updateSkillAction(
   const id = String(formData.get("id") ?? "");
 
   if (!id) {
-    return { status: "error", message: "Не передан идентификатор навыка" };
+    return { status: "error", message: "Skill id is missing" };
   }
 
   const parsed = validateSkillForm(formData);
@@ -86,7 +86,7 @@ export async function updateSkillAction(
   });
 
   if (!exists) {
-    return { status: "error", message: "Навык не найден" };
+    return { status: "error", message: "Skill not found" };
   }
 
   await prisma.skill.update({ where: { id }, data: parsed.data });

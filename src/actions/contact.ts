@@ -35,14 +35,15 @@ export async function submitContactAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Проверьте правильность заполнения полей",
+      message: "Please check the form fields",
       fieldErrors: z.flattenError(parsed.error).fieldErrors,
     };
   }
 
   const success: ActionState = {
     status: "success",
-    message: "Спасибо! Сообщение отправлено — отвечу на указанную почту.",
+    message:
+      "Thank you! Your message has been sent — I will reply to the email you left.",
   };
 
   if (parsed.data.company) {

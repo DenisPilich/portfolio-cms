@@ -15,10 +15,10 @@ export function ContactsSection() {
       className="scroll-mt-24 border-t border-border py-20"
     >
       <h2 className="max-w-2xl text-2xl font-semibold tracking-tight text-balance">
-        Хотите что-то спросить?
+        Got something to ask?
       </h2>
       <p className="mt-3 max-w-2xl text-pretty text-muted-foreground">
-        Напишите удобным способом — отвечаю по будням.
+        Reach out whichever way suits you — I reply on weekdays.
       </p>
 
       <ul className="mt-8 flex flex-wrap gap-3">
@@ -40,7 +40,7 @@ export function ContactsSection() {
         href="/contact"
         className="mt-6 inline-flex items-center gap-2 text-sm text-primary transition-opacity hover:opacity-80"
       >
-        Или оставьте сообщение через форму
+        Or send a message through the form
         <ArrowRight className="size-4" aria-hidden />
       </Link>
     </section>

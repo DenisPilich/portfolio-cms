@@ -40,7 +40,7 @@ export function ProjectCard({ project }: { project: Project }) {
             className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
           >
             <Code2 className="size-4" aria-hidden />
-            Код
+            Code
           </a>
         )}
         {project.liveUrl && (
@@ -51,7 +51,7 @@ export function ProjectCard({ project }: { project: Project }) {
             className="inline-flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
           >
             <ExternalLink className="size-4" aria-hidden />
-            Демо
+            Live demo
           </a>
         )}
       </div>

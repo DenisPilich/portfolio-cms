@@ -7,11 +7,13 @@ import { z } from "zod";
  * из формы: с точки зрения компилятора тело запроса — это строка, в которой
  * может лежать что угодно. Zod проверяет данные в рантайме и заодно выводит
  * из схемы тип, поэтому описание проверки и тип — один источник правды.
+ *
+ * Тексты сообщений на английском: их видит посетитель рядом с полем формы.
  */
 
 export const loginSchema = z.object({
-  email: z.email("Введите корректный email"),
-  password: z.string().min(8, "Пароль не короче 8 символов"),
+  email: z.email("Enter a valid email address"),
+  password: z.string().min(8, "The password must be at least 8 characters"),
 });
 
 /**
@@ -22,11 +24,11 @@ export const loginSchema = z.object({
 const slugSchema = z
   .string()
   .trim()
-  .min(3, "Минимум 3 символа")
-  .max(80, "Максимум 80 символов")
+  .min(3, "At least 3 characters")
+  .max(80, "At most 80 characters")
   .regex(
     /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-    "Только строчные латинские буквы, цифры и дефис",
+    "Use lowercase Latin letters, digits and hyphens only",
   );
 
 /**
@@ -38,7 +40,7 @@ const optionalUrlSchema = z
   .trim()
   .refine(
     (value) => value === "" || z.url().safeParse(value).success,
-    "Укажите полный адрес, например https://example.com",
+    "Enter a full address, for example https://example.com",
   )
   .transform((value) => (value === "" ? null : value));
 
@@ -59,14 +61,18 @@ const checkboxSchema = z
   .transform((value) => value === "on" || value === "true");
 
 export const projectSchema = z.object({
-  title: z.string().trim().min(3, "Минимум 3 символа").max(120),
+  title: z
+    .string()
+    .trim()
+    .min(3, "At least 3 characters")
+    .max(120, "At most 120 characters"),
   slug: slugSchema,
   summary: z
     .string()
     .trim()
-    .min(10, "Коротко опишите проект — хотя бы 10 символов")
-    .max(300, "Не больше 300 символов"),
-  content: z.string().trim().min(20, "Содержимое не короче 20 символов"),
+    .min(10, "Describe the project briefly — at least 10 characters")
+    .max(300, "At most 300 characters"),
+  content: z.string().trim().min(20, "The content must be at least 20 characters"),
   /** Ссылка на обложку. Загружается в хранилище или вставляется вручную. */
   coverImage: optionalUrlSchema,
   techStack: techStackSchema,
@@ -76,37 +82,38 @@ export const projectSchema = z.object({
   published: checkboxSchema,
   position: z.coerce
     .number()
-    .int("Целое число")
-    .min(0, "Не может быть отрицательным")
-    .max(999),
+    .int("Whole numbers only")
+    .min(0, "Cannot be negative")
+    .max(999, "At most 999"),
 });
 
 /** Категория навыка. Значения совпадают с enum в схеме базы. */
 const skillCategorySchema = z.enum(["HARD", "SOFT"], {
-  message: "Выберите категорию",
+  message: "Choose a category",
 });
 
 /**
  * Уровень владения. Показывается только у hard-навыков: у soft-качеств
  * градация «знаю основы» звучала бы странно.
  */
-const skillLevelSchema = z.enum(["LEARNING", "BASIC", "CONFIDENT"], {
-  message: "Выберите уровень",
-});
+const skillLevelSchema = z.enum(
+  ["LEARNING", "BASIC", "PRACTICAL", "EXPERT"],
+  { message: "Choose a level" },
+);
 
 /** Пустая строка превращается в null: в базе поле необязательное. */
 const optionalTextSchema = z
   .string()
   .trim()
-  .max(300, "Не больше 300 символов")
+  .max(300, "At most 300 characters")
   .transform((value) => (value === "" ? null : value));
 
 export const skillSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(2, "Минимум 2 символа")
-    .max(60, "Не больше 60 символов"),
+    .min(2, "At least 2 characters")
+    .max(60, "At most 60 characters"),
   description: optionalTextSchema,
   category: skillCategorySchema,
   level: skillLevelSchema,
@@ -118,13 +125,13 @@ export const skillSchema = z.object({
   icon: z
     .string()
     .trim()
-    .max(60, "Не больше 60 символов")
+    .max(60, "At most 60 characters")
     .transform((value) => (value === "" ? null : value)),
   position: z.coerce
     .number()
-    .int("Целое число")
-    .min(0, "Не может быть отрицательным")
-    .max(999),
+    .int("Whole numbers only")
+    .min(0, "Cannot be negative")
+    .max(999, "At most 999"),
 });
 
 /**
@@ -139,14 +146,14 @@ export const contactSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(2, "Как к вам обращаться?")
-    .max(80, "Не больше 80 символов"),
-  email: z.email("Введите корректный email"),
+    .min(2, "What should I call you?")
+    .max(80, "At most 80 characters"),
+  email: z.email("Enter a valid email address"),
   message: z
     .string()
     .trim()
-    .min(10, "Сообщение не короче 10 символов")
-    .max(2000, "Не больше 2000 символов"),
+    .min(10, "The message must be at least 10 characters")
+    .max(2000, "At most 2000 characters"),
   company: z.string().optional(),
 });
 

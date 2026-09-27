@@ -36,7 +36,7 @@ function validateProjectForm(formData: FormData) {
 function validationError(error: z.ZodError): ActionState {
   return {
     status: "error",
-    message: "Проверьте правильность заполнения полей",
+    message: "Please check the form fields",
     fieldErrors: z.flattenError(error).fieldErrors,
   };
 }
@@ -90,8 +90,8 @@ export async function createProjectAction(
   if (slugTaken) {
     return {
       status: "error",
-      message: "Проект с таким адресом уже существует",
-      fieldErrors: { slug: ["Этот slug уже занят"] },
+      message: "A project with this slug already exists",
+      fieldErrors: { slug: ["This slug is already taken"] },
     };
   }
 
@@ -125,7 +125,7 @@ export async function updateProjectAction(
   const id = String(formData.get("id") ?? "");
 
   if (!id) {
-    return { status: "error", message: "Не передан идентификатор проекта" };
+    return { status: "error", message: "Project id is missing" };
   }
 
   const parsed = validateProjectForm(formData);
@@ -138,7 +138,7 @@ export async function updateProjectAction(
   const current = await prisma.project.findUnique({ where: { id } });
 
   if (!current) {
-    return { status: "error", message: "Проект не найден" };
+    return { status: "error", message: "Project not found" };
   }
 
   // Slug мог измениться, и тогда его должен занять кто-то другой.
@@ -150,8 +150,8 @@ export async function updateProjectAction(
   if (slugTaken) {
     return {
       status: "error",
-      message: "Проект с таким адресом уже существует",
-      fieldErrors: { slug: ["Этот slug уже занят"] },
+      message: "A project with this slug already exists",
+      fieldErrors: { slug: ["This slug is already taken"] },
     };
   }
 

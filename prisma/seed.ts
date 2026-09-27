@@ -11,6 +11,9 @@ import { PrismaClient } from "../src/generated/prisma/client";
  * `prisma migrate reset` вызывает seed автоматически после пересоздания схемы.
  *
  * Запуск: npm run db:seed
+ *
+ * Тексты проектов и навыков на английском: сайт рассчитан на международный
+ * рынок, и смесь языков в интерфейсе и данных выглядела бы небрежно.
  */
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL ?? "",
@@ -25,7 +28,7 @@ function daysAgo(days: number): Date {
 }
 
 async function main() {
-  console.log("Наполняю базу демонстрационными данными...");
+  console.log("Seeding the database with demo content...");
 
   const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 12);
 
@@ -34,7 +37,7 @@ async function main() {
     update: {},
     create: {
       email: ADMIN_EMAIL,
-      name: "Администратор",
+      name: "Administrator",
       passwordHash,
       role: "ADMIN",
     },
@@ -43,25 +46,25 @@ async function main() {
   const projects = [
     {
       slug: "portfolio-cms",
-      title: "Портфолио с собственной CMS",
+      title: "Portfolio with a custom CMS",
       summary:
-        "Сайт, который вы сейчас читаете: публичная часть на серверных компонентах и закрытая админка с полным CRUD.",
-      content: `## Задача
+        "The site you are reading now: a public part built on server components and a private admin area with full CRUD.",
+      content: `## The task
 
-Сделать портфолио, которое не нужно пересобирать ради новой статьи,
-и при этом не тащить готовую CMS.
+Build a portfolio that does not need a rebuild every time content changes,
+without pulling in a ready-made CMS.
 
-## Решение
+## The approach
 
-Публичные страницы рендерятся на сервере и читают данные напрямую из
-PostgreSQL через Prisma. Контент редактируется в админке, доступ к ней
-защищён сессией, а изменения применяются через Server Actions.
+Public pages render on the server and read from PostgreSQL through Prisma.
+Content is edited in the admin area, access to it is protected by a session,
+and changes are applied through Server Actions.
 
-## Что внутри
+## What is inside
 
-- Серверные компоненты без промежуточного API
-- Валидация входных данных схемами Zod
-- Инвалидация кэша по тегу после каждой публикации`,
+- Server components with no intermediate API layer
+- Input validation with Zod schemas
+- Cache invalidation by tag after every save`,
       techStack: ["Next.js", "TypeScript", "Prisma", "PostgreSQL"],
       featured: true,
       position: 1,
@@ -70,17 +73,17 @@ PostgreSQL через Prisma. Контент редактируется в ад�
     },
     {
       slug: "task-planner",
-      title: "Планировщик задач",
+      title: "Task planner",
       summary:
-        "Канбан-доска с drag-and-drop, совместными проектами и историей изменений.",
-      content: `## Задача
+        "A kanban board with drag and drop, shared projects and a change history.",
+      content: `## The task
 
-Разобраться с оптимистичными обновлениями интерфейса и совместной работой.
+Get to grips with optimistic UI updates and collaborative editing.
 
-## Решение
+## The approach
 
-Карточки перетаскиваются между колонками, интерфейс обновляется сразу,
-а запрос уходит в фоне. При ошибке состояние откатывается.`,
+Cards move between columns, the interface updates immediately and the request
+goes out in the background. If it fails, the state rolls back.`,
       techStack: ["React", "TypeScript", "PostgreSQL"],
       featured: true,
       position: 2,
@@ -89,17 +92,17 @@ PostgreSQL через Prisma. Контент редактируется в ад�
     },
     {
       slug: "expense-bot",
-      title: "Telegram-бот для учёта расходов",
+      title: "Telegram bot for tracking expenses",
       summary:
-        "Бот принимает траты текстом, раскладывает по категориям и строит отчёт за месяц.",
-      content: `## Задача
+        "The bot takes expenses as plain text, sorts them into categories and builds a monthly report.",
+      content: `## The task
 
-Убрать трение: записывать расходы должно быть быстрее, чем открывать таблицу.
+Remove the friction: logging an expense should be faster than opening a spreadsheet.
 
-## Решение
+## The approach
 
-Бот разбирает сообщение вида «кофе 300», сохраняет запись и по команде
-отдаёт сводку по категориям за период.`,
+The bot parses a message like "coffee 300", stores the entry and returns
+a summary by category for the requested period.`,
       techStack: ["TypeScript", "PostgreSQL"],
       featured: false,
       position: 3,
@@ -111,7 +114,19 @@ PostgreSQL через Prisma. Контент редактируется в ад�
   for (const project of projects) {
     await prisma.project.upsert({
       where: { slug: project.slug },
-      update: {},
+      // Обновляем и существующие записи: иначе после смены языка
+      // в базе остались бы старые тексты, и сайт выглядел бы наполовину
+      // переведённым.
+      update: {
+        title: project.title,
+        summary: project.summary,
+        content: project.content,
+        techStack: project.techStack,
+        repoUrl: project.repoUrl,
+        liveUrl: project.liveUrl,
+        featured: project.featured,
+        position: project.position,
+      },
       create: {
         ...project,
         published: true,
@@ -122,11 +137,6 @@ PostgreSQL через Prisma. Контент редактируется в ад�
   }
 
   /**
-   * Навыки. Иконки заданы ключами Simple Icons — по ним на сайте
-   * подставляется логотип технологии. Если ключ неизвестен, навык просто
-   * выводится текстом, поэтому опечатка ничего не ломает.
-   */
-  /**
    * Явный тип нужен, чтобы строки «HARD» и «SOFT» сузились до литералов.
    * Без аннотации TypeScript выводит обычный string и не принимает его
    * вместо enum-поля.
@@ -136,27 +146,28 @@ PostgreSQL через Prisma. Контент редактируется в ад�
     description?: string;
     icon?: string;
     category: "HARD" | "SOFT";
-    level?: "LEARNING" | "BASIC" | "CONFIDENT";
+    level?: "LEARNING" | "BASIC" | "PRACTICAL" | "EXPERT";
     position: number;
   };
 
   /**
-   * Уровни расставлены честно, а не «всё уверенно».
+   * Уровни расставлены честно, а не «всё на максимум».
    *
    * Для начинающего специалиста длинный список технологий без градации
    * выглядит неубедительно: читающий понимает, что всё это на одном уровне
    * за короткий срок освоить нельзя. Указание уровня работает наоборот
-   * в плюс — видно, что человек оценивает себя трезво. Логотипа Zustand
-   * в наборе Simple Icons нет, поэтому у него иконка не задана: на сайте
-   * покажется монограмма «Zu».
+   * в плюс — видно, что человек оценивает себя трезво.
+   *
+   * Логотипа Zustand в наборе Simple Icons нет, поэтому у него иконка
+   * не задана: на сайте покажется монограмма «Zu».
    */
   const skills: SeedSkill[] = [
-    { name: "TypeScript", icon: "typescript", category: "HARD", level: "CONFIDENT", position: 1 },
-    { name: "React", icon: "react", category: "HARD", level: "CONFIDENT", position: 2 },
-    { name: "Next.js", icon: "nextdotjs", category: "HARD", level: "CONFIDENT", position: 3 },
-    { name: "Tailwind CSS", icon: "tailwindcss", category: "HARD", level: "CONFIDENT", position: 4 },
-    { name: "Prisma", icon: "prisma", category: "HARD", level: "CONFIDENT", position: 5 },
-    { name: "Git", icon: "git", category: "HARD", level: "CONFIDENT", position: 6 },
+    { name: "TypeScript", icon: "typescript", category: "HARD", level: "EXPERT", position: 1 },
+    { name: "React", icon: "react", category: "HARD", level: "EXPERT", position: 2 },
+    { name: "Next.js", icon: "nextdotjs", category: "HARD", level: "PRACTICAL", position: 3 },
+    { name: "Tailwind CSS", icon: "tailwindcss", category: "HARD", level: "PRACTICAL", position: 4 },
+    { name: "Prisma", icon: "prisma", category: "HARD", level: "PRACTICAL", position: 5 },
+    { name: "Git", icon: "git", category: "HARD", level: "PRACTICAL", position: 6 },
     { name: "Node.js", icon: "nodedotjs", category: "HARD", level: "BASIC", position: 7 },
     { name: "PostgreSQL", icon: "postgresql", category: "HARD", level: "BASIC", position: 8 },
     { name: "Redux", icon: "redux", category: "HARD", level: "BASIC", position: 9 },
@@ -165,43 +176,48 @@ PostgreSQL через Prisma. Контент редактируется в ад�
     { name: "Docker", icon: "docker", category: "HARD", level: "LEARNING", position: 12 },
     { name: "Laravel", icon: "laravel", category: "HARD", level: "LEARNING", position: 13 },
     {
-      name: "Работа в команде",
+      name: "Teamwork",
       description:
-        "Есть опыт общения с дизайнерами, менеджерами и другими разработчиками.",
+        "Comfortable working alongside designers, managers and other developers.",
       category: "SOFT",
       position: 1,
     },
     {
-      name: "Ответственность за сроки",
-      description: "Соблюдаю договорённости и предупреждаю о рисках заранее.",
+      name: "Meeting deadlines",
+      description: "I keep my commitments and flag risks early.",
       category: "SOFT",
       position: 2,
     },
     {
-      name: "Внимание к деталям",
-      description: "Читаю требования до конца и уточняю неясные места.",
+      name: "Attention to detail",
+      description: "I read requirements to the end and ask about anything unclear.",
       category: "SOFT",
       position: 3,
     },
     {
-      name: "Требовательность к коду",
-      description: "Слежу за единым стилем и читаемостью, пишу тесты.",
+      name: "Care about code quality",
+      description: "I keep a consistent style, favour readability and write tests.",
       category: "SOFT",
       position: 4,
     },
     {
-      name: "Открытость к критике",
-      description: "Спокойно воспринимаю замечания и делаю выводы.",
+      name: "Open to feedback",
+      description: "I take criticism calmly and act on it.",
       category: "SOFT",
       position: 5,
     },
     {
-      name: "Постоянное обучение",
-      description: "Слежу за развитием стека и пробую новое на пет-проектах.",
+      name: "Continuous learning",
+      description: "I follow the ecosystem and try new things on side projects.",
       category: "SOFT",
       position: 6,
     },
   ];
+
+  // Навыки пересоздаём целиком: естественного уникального ключа у них нет,
+  // поэтому после смены языка старые записи остались бы висеть рядом
+  // с новыми и список разъехался бы на два языка.
+  await prisma.skill.deleteMany();
 
   for (const skill of skills) {
     // Естественного уникального ключа у навыка нет, поэтому ищем по названию
@@ -219,7 +235,7 @@ PostgreSQL через Prisma. Контент редактируется в ад�
   }
 
   const settings = [
-    { key: "about", value: "Пишу веб-приложения на TypeScript и React." },
+    { key: "about", value: "I build web applications with TypeScript and React." },
     { key: "github", value: "https://github.com/" },
     { key: "telegram", value: "https://t.me/" },
     { key: "email", value: "you@example.com" },
@@ -234,14 +250,14 @@ PostgreSQL через Prisma. Контент редактируется в ад�
   }
 
   console.log(
-    `Готово: пользователь ${admin.email}, проектов ${projects.length}, навыков ${skills.length}.`,
+    `Done: user ${admin.email}, projects ${projects.length}, skills ${skills.length}.`,
   );
-  console.log(`Логин в админку: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
+  console.log(`Admin login: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
 }
 
 main()
   .catch((error) => {
-    console.error("Не удалось наполнить базу:", error);
+    console.error("Seeding failed:", error);
     process.exit(1);
   })
   .finally(async () => {

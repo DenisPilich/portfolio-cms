@@ -21,7 +21,7 @@ export type SkillFormValues = {
   name: string;
   description: string | null;
   category: "HARD" | "SOFT";
-  level: "LEARNING" | "BASIC" | "CONFIDENT";
+  level: "LEARNING" | "BASIC" | "PRACTICAL" | "EXPERT";
   icon: string | null;
   position: number;
 };
@@ -52,7 +52,7 @@ export function SkillForm({
 
       <div className="grid gap-6 sm:grid-cols-3">
         <div className="space-y-2">
-          <Label htmlFor="name">Название</Label>
+          <Label htmlFor="name">Name</Label>
           <Input
             id="name"
             name="name"
@@ -64,53 +64,54 @@ export function SkillForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="category">Категория</Label>
+          <Label htmlFor="category">Category</Label>
           <Select
             id="category"
             name="category"
             defaultValue={defaultValues?.category ?? "HARD"}
           >
-            <option value="HARD">Hard skill — технология</option>
-            <option value="SOFT">Soft skill — качество</option>
+            <option value="HARD">Hard skill — technology</option>
+            <option value="SOFT">Soft skill — personal quality</option>
           </Select>
           <FieldError errors={state.fieldErrors?.category} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="level" hint="у soft не виден">
-            Уровень
+          <Label htmlFor="level" hint="hidden for soft skills">
+            Level
           </Label>
           <Select
             id="level"
             name="level"
             defaultValue={defaultValues?.level ?? "BASIC"}
           >
-            <option value="LEARNING">Изучаю — только разбираюсь</option>
-            <option value="BASIC">Основы — применял в учебном</option>
-            <option value="CONFIDENT">Уверенно — делал проекты</option>
+            <option value="LEARNING">Learning — just getting started</option>
+            <option value="BASIC">Basics — used it in practice tasks</option>
+            <option value="PRACTICAL">Hands-on — built projects with it</option>
+            <option value="EXPERT">Expert — know it deeply</option>
           </Select>
           <FieldError errors={state.fieldErrors?.level} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description" hint="для soft-навыков">
-          Пояснение
+        <Label htmlFor="description" hint="mostly for soft skills">
+          Description
         </Label>
         <Textarea
           id="description"
           name="description"
           rows={3}
           defaultValue={defaultValues?.description ?? ""}
-          placeholder="Есть опыт общения с дизайнерами и менеджерами."
+          placeholder="Comfortable working alongside designers and managers."
         />
         <FieldError errors={state.fieldErrors?.description} />
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="icon" hint="ключ Simple Icons">
-            Иконка
+          <Label htmlFor="icon" hint="Simple Icons key">
+            Icon
           </Label>
           <div className="flex items-center gap-3">
             <Input
@@ -127,14 +128,14 @@ export function SkillForm({
           </div>
           <FieldError errors={state.fieldErrors?.icon} />
           <p className="text-xs text-muted-foreground">
-            Например: react, nextdotjs, postgresql, prisma. Названия берутся
-            из набора Simple Icons, у soft-навыков иконка не нужна.
+            For example: react, nextdotjs, postgresql, prisma. Names come from
+            the Simple Icons set. Soft skills do not need an icon.
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="position" hint="меньше — выше">
-            Порядок
+          <Label htmlFor="position" hint="lower comes first">
+            Order
           </Label>
           <Input
             id="position"
@@ -155,7 +156,7 @@ export function SkillForm({
           disabled={isPending}
           className="rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {isPending ? "Сохраняем..." : "Сохранить"}
+          {isPending ? "Saving..." : "Save"}
         </button>
       </div>
     </form>

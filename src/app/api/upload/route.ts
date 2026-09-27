@@ -78,21 +78,21 @@ function describeMissingBlobVariables(): string {
 
   // Достаточно одной работающей связки, поэтому перечисляем все отсутствующие
   // имена: если чего-то нет — будет видно, чего именно.
-  return missing.length > 0 ? missing.join(", ") : "неизвестно";
+  return missing.length > 0 ? missing.join(", ") : "unknown";
 }
 
 export async function POST(request: Request) {
   const user = await getSessionUser();
 
   if (!user) {
-    return Response.json({ error: "Требуется авторизация" }, { status: 401 });
+    return Response.json({ error: "Authentication required" }, { status: 401 });
   }
 
   const formData = await request.formData();
   const file = formData.get("file");
 
   if (!(file instanceof File)) {
-    return Response.json({ error: "Файл не передан" }, { status: 400 });
+    return Response.json({ error: "No file provided" }, { status: 400 });
   }
 
   // Тип проверяем по заголовку от браузера. Для учебного проекта этого
@@ -100,14 +100,14 @@ export async function POST(request: Request) {
   // заголовок подделывается тривиально.
   if (!ALLOWED_TYPES.has(file.type)) {
     return Response.json(
-      { error: "Поддерживаются только JPEG, PNG, WebP, AVIF и GIF" },
+      { error: "Only JPEG, PNG, WebP, AVIF and GIF are supported" },
       { status: 415 },
     );
   }
 
   if (file.size > MAX_FILE_SIZE) {
     return Response.json(
-      { error: "Файл больше 5 МБ. Сожмите изображение и попробуйте снова." },
+      { error: "The file is larger than 5 MB. Compress it and try again." },
       { status: 413 },
     );
   }
@@ -135,7 +135,7 @@ export async function POST(request: Request) {
     console.error("Не удалось загрузить файл в хранилище:", error);
 
     return Response.json(
-      { error: "Хранилище недоступно, попробуйте позже" },
+      { error: "Storage is unavailable, please try again later" },
       { status: 502 },
     );
   }

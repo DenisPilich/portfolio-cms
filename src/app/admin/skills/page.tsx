@@ -7,7 +7,7 @@ import { TechIcon } from "@/components/tech-icon";
 import { DeleteButton } from "@/components/admin/delete-button";
 
 export const metadata: Metadata = {
-  title: "Навыки",
+  title: "Skills",
   robots: { index: false, follow: false },
 };
 
@@ -30,23 +30,23 @@ export default async function AdminSkillsPage() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Навыки</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Skills</h1>
         <Link
           href="/admin/skills/new"
           className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
           <Plus className="size-4" aria-hidden />
-          Добавить
+          Add skill
         </Link>
       </div>
 
       <p className="mt-3 text-sm text-muted-foreground">
-        Этот список выводится на главной странице в разделе «Что я умею».
+        This list is shown on the home page in the “What I can do” section.
       </p>
 
       {skills.length === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          Навыков пока нет. Добавьте первый.
+          No skills yet. Add the first one.
         </p>
       ) : (
         groups.map((group) =>

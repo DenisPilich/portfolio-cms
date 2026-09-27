@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatShortDate } from "@/lib/format";
 
 export const metadata: Metadata = {
-  title: "Админка",
+  title: "Admin",
   robots: { index: false, follow: false },
 };
 
@@ -31,21 +31,17 @@ export default async function AdminDashboardPage() {
 
   const stats = [
     {
-      label: "Проектов",
+      label: "Projects",
       value: projectsTotal,
-      hint: `${projectsDraft} черновиков`,
+      hint: `${projectsDraft} drafts`,
     },
-    { label: "Навыков", value: skillsTotal, hint: "в разделе «Что я умею»" },
-    {
-      label: "Сообщений",
-      value: messagesUnread,
-      hint: "непрочитанных",
-    },
+    { label: "Skills", value: skillsTotal, hint: "in the skills section" },
+    { label: "Messages", value: messagesUnread, hint: "unread" },
   ];
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight">Обзор</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         {stats.map((stat) => (
@@ -63,12 +59,12 @@ export default async function AdminDashboardPage() {
 
       <section className="mt-10">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-medium">Недавние проекты</h2>
+          <h2 className="font-medium">Recent projects</h2>
           <Link
             href="/admin/projects"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            Все
+            All
           </Link>
         </div>
 
@@ -81,7 +77,7 @@ export default async function AdminDashboardPage() {
               >
                 <span className="truncate">{project.title}</span>
                 <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                  {project.published ? "опубл." : "черновик"} ·{" "}
+                  {project.published ? "published" : "draft"} ·{" "}
                   {formatShortDate(project.updatedAt)}
                 </span>
               </Link>
@@ -89,7 +85,7 @@ export default async function AdminDashboardPage() {
           ))}
           {recentProjects.length === 0 && (
             <li className="px-4 py-3 text-sm text-muted-foreground">
-              Пока ничего нет
+              Nothing here yet
             </li>
           )}
         </ul>

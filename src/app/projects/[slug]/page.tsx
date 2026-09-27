@@ -23,7 +23,7 @@ export async function generateMetadata({
   const project = await getProjectBySlug(slug);
 
   if (!project) {
-    return { title: "Проект не найден" };
+    return { title: "Project not found" };
   }
 
   return {
@@ -38,8 +38,8 @@ export default async function ProjectPage({
   const { slug } = await params;
 
   // Тот же запрос уже выполнялся в generateMetadata, но повторного обращения
-  // к базе не будет: функция обёрнута в cache() из React и в пределах одного
-  // запроса пользователя возвращает готовый результат.
+  // к базе не будет: функция обёрнута в unstable_cache и возвращает готовый
+  // результат.
   const project = await getProjectBySlug(slug);
 
   if (!project) {
@@ -53,7 +53,7 @@ export default async function ProjectPage({
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
-        Все проекты
+        All projects
       </Link>
 
       <header className="mt-8">
@@ -77,7 +77,7 @@ export default async function ProjectPage({
               className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
             >
               <Code2 className="size-4" aria-hidden />
-              Исходный код
+              Source code
             </a>
           )}
 
@@ -89,7 +89,7 @@ export default async function ProjectPage({
               className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
             >
               <ExternalLink className="size-4" aria-hidden />
-              Открыть сайт
+              Open the site
             </a>
           )}
         </div>

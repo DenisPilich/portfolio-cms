@@ -8,8 +8,8 @@ import { Maximize2, X } from "lucide-react";
  * Обложка проекта с просмотром в полном размере.
  *
  * Клиентский компонент, потому что состояние открытого окна живёт
- * в браузере. По клику картинка открывается поверх страницы — так же,
- * как на референсе, где снимок проекта можно рассмотреть целиком.
+ * в браузере. По клику картинка открывается поверх страницы, чтобы снимок
+ * проекта можно было рассмотреть целиком.
  */
 export function ProjectImage({
   src,
@@ -40,7 +40,7 @@ export function ProjectImage({
   if (!src) {
     return (
       <div className="flex aspect-[4/3] items-center justify-center rounded-lg border border-dashed border-border bg-muted p-4 text-center text-xs text-muted-foreground">
-        Обложка не задана
+        No cover image yet
       </div>
     );
   }
@@ -50,7 +50,7 @@ export function ProjectImage({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        aria-label={`Открыть изображение «${alt}» в полном размере`}
+        aria-label={`Open the image "${alt}" in full size`}
         className="group relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden rounded-lg border border-border bg-muted"
       >
         <Image
@@ -76,7 +76,7 @@ export function ProjectImage({
         >
           <button
             type="button"
-            aria-label="Закрыть просмотр"
+            aria-label="Close the preview"
             className="absolute top-4 right-4 flex size-10 items-center justify-center rounded-md border border-border bg-background"
           >
             <X className="size-5" aria-hidden />

@@ -3,17 +3,17 @@ import { ContactForm } from "@/components/contact-form";
 import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Контакты",
-  description: "Как со мной связаться и форма обратной связи.",
+  title: "Contact",
+  description: "How to get in touch and the contact form.",
 };
 
 export default function ContactPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Контакты</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">Contact</h1>
       <p className="mt-4 max-w-2xl text-pretty text-muted-foreground">
-        Напишите через форму или любым способом ниже — отвечаю на указанную
-        почту.
+        Send a message through the form or use any of the links below — I reply
+        to the email you leave.
       </p>
 
       <ul className="mt-6 flex flex-wrap gap-3">

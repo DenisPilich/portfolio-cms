@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/format";
 import { DeleteButton } from "@/components/admin/delete-button";
 
 export const metadata: Metadata = {
-  title: "Сообщения",
+  title: "Messages",
   robots: { index: false, follow: false },
 };
 
@@ -21,21 +21,21 @@ export default async function AdminMessagesPage() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Сообщения</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Messages</h1>
         {unread > 0 && (
           <span className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground">
-            непрочитанных: {unread}
+            unread: {unread}
           </span>
         )}
       </div>
 
       <p className="mt-3 text-sm text-muted-foreground">
-        Приходят из формы на странице «Контакты».
+        They come from the form on the Contact page.
       </p>
 
       {messages.length === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          Сообщений пока нет.
+          No messages yet.
         </p>
       ) : (
         <ul className="mt-8 grid gap-4">
@@ -54,7 +54,7 @@ export default async function AdminMessagesPage() {
                     {message.name}
                     {!message.read && (
                       <span className="ml-2 rounded-full bg-primary/15 px-2 py-0.5 text-xs text-primary">
-                        новое
+                        new
                       </span>
                     )}
                   </p>
@@ -90,27 +90,27 @@ export default async function AdminMessagesPage() {
                     {message.read ? (
                       <>
                         <Mail className="size-4" aria-hidden />
-                        Пометить непрочитанным
+                        Mark as unread
                       </>
                     ) : (
                       <>
                         <MailOpen className="size-4" aria-hidden />
-                        Пометить прочитанным
+                        Mark as read
                       </>
                     )}
                   </button>
                 </form>
 
                 <a
-                  href={`mailto:${message.email}?subject=${encodeURIComponent("Ответ на ваше сообщение")}`}
+                  href={`mailto:${message.email}?subject=${encodeURIComponent("Reply to your message")}`}
                   className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-muted"
                 >
-                  Ответить
+                  Reply
                 </a>
 
                 <form action={deleteMessageAction}>
                   <input type="hidden" name="id" value={message.id} />
-                  <DeleteButton label={`сообщение от ${message.name}`} />
+                  <DeleteButton label={`message from ${message.name}`} />
                 </form>
               </div>
             </li>

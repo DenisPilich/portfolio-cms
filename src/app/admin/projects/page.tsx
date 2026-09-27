@@ -7,7 +7,7 @@ import { formatShortDate } from "@/lib/format";
 import { DeleteButton } from "@/components/admin/delete-button";
 
 export const metadata: Metadata = {
-  title: "Проекты",
+  title: "Projects",
   robots: { index: false, follow: false },
 };
 
@@ -20,19 +20,19 @@ export default async function AdminProjectsPage() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Проекты</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
         <Link
           href="/admin/projects/new"
           className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
           <Plus className="size-4" aria-hidden />
-          Добавить
+          Add project
         </Link>
       </div>
 
       {projects.length === 0 ? (
         <p className="mt-8 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          Проектов пока нет. Добавьте первый.
+          No projects yet. Add the first one.
         </p>
       ) : (
         <ul className="mt-8 divide-y divide-border rounded-lg border border-border">
@@ -51,12 +51,12 @@ export default async function AdminProjectsPage() {
                   </Link>
                   {project.featured && (
                     <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
-                      на главной
+                      featured
                     </span>
                   )}
                 </div>
                 <p className="mt-1 font-mono text-xs text-muted-foreground">
-                  /{project.slug} · порядок {project.position} ·{" "}
+                  /{project.slug} · order {project.position} ·{" "}
                   {formatShortDate(project.updatedAt)}
                 </p>
               </div>
@@ -69,14 +69,14 @@ export default async function AdminProjectsPage() {
                       : "rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground"
                   }
                 >
-                  {project.published ? "опубликован" : "черновик"}
+                  {project.published ? "published" : "draft"}
                 </span>
 
                 <Link
                   href={`/admin/projects/${project.id}/edit`}
                   className="rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-muted"
                 >
-                  Изменить
+                  Edit
                 </Link>
 
                 <form action={deleteProjectAction}>

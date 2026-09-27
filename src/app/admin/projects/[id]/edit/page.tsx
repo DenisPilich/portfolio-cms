@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { ProjectForm } from "@/components/admin/project-form";
 
 export const metadata: Metadata = {
-  title: "Редактирование проекта",
+  title: "Edit project",
   robots: { index: false, follow: false },
 };
 
@@ -29,19 +29,19 @@ export default async function EditProjectPage({
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
-        К списку проектов
+        Back to projects
       </Link>
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Редактирование проекта
+          Edit project
         </h1>
         {project.published && (
           <Link
             href={`/projects/${project.slug}`}
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            Открыть на сайте →
+            Open on the site →
           </Link>
         )}
       </div>

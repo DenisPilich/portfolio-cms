@@ -20,7 +20,7 @@ function MenuPanel() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        aria-label={open ? "Закрыть меню" : "Открыть меню"}
+        aria-label={open ? "Close menu" : "Open menu"}
         className="inline-flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
         {open ? (

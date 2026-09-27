@@ -17,7 +17,7 @@ function createPrismaClient() {
 
   if (!connectionString) {
     throw new Error(
-      "Не задана переменная окружения DATABASE_URL. Скопируйте .env.example в .env и укажите строку подключения.",
+      "DATABASE_URL is not set. Copy .env.example to .env and provide a connection string.",
     );
   }
 

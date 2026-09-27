@@ -46,7 +46,7 @@ export function ImageUploader({
     // Окончательное решение всё равно за сервером: браузерным проверкам
     // доверять нельзя, их легко обойти.
     if (file.size > MAX_FILE_SIZE) {
-      setUploadError("Файл больше 5 МБ");
+      setUploadError("The file is larger than 5 MB");
       return;
     }
 
@@ -60,13 +60,13 @@ export function ImageUploader({
       const data = (await response.json()) as { url?: string; error?: string };
 
       if (!response.ok || !data.url) {
-        setUploadError(data.error ?? "Не удалось загрузить файл");
+        setUploadError(data.error ?? "Could not upload the file");
         return;
       }
 
       setUrl(data.url);
     } catch {
-      setUploadError("Сеть недоступна, попробуйте ещё раз");
+      setUploadError("Network unavailable, please try again");
     } finally {
       setIsUploading(false);
 
@@ -100,7 +100,7 @@ export function ImageUploader({
           className="inline-flex shrink-0 items-center gap-2 rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-muted disabled:opacity-60"
         >
           <ImageUp className="size-4" aria-hidden />
-          {isUploading ? "Загрузка..." : "Файл"}
+          {isUploading ? "Uploading..." : "Choose file"}
         </button>
       </div>
 
@@ -124,7 +124,7 @@ export function ImageUploader({
         <div className="relative mt-3 h-40 w-full max-w-sm overflow-hidden rounded-md border border-border">
           <Image
             src={url}
-            alt="Предпросмотр обложки"
+            alt="Cover preview"
             fill
             sizes="384px"
             className="object-cover"

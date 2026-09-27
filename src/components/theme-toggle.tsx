@@ -54,8 +54,7 @@ export function ThemeToggle() {
     localStorage.setItem("theme", next);
   }
 
-  const label =
-    theme === "dark" ? "Включить светлую тему" : "Включить тёмную тему";
+  const label = theme === "dark" ? "Switch to light theme" : "Switch to dark theme";
 
   return (
     <button

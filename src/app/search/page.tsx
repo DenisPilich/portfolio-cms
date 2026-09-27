@@ -4,8 +4,8 @@ import { ProjectCard } from "@/components/project-card";
 import { MIN_SEARCH_LENGTH, searchProjects } from "@/lib/queries";
 
 export const metadata: Metadata = {
-  title: "Поиск",
-  description: "Поиск по проектам.",
+  title: "Search",
+  description: "Search across projects.",
   robots: { index: false, follow: true },
 };
 
@@ -22,9 +22,9 @@ export default async function SearchPage({
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Поиск</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">Search</h1>
       <p className="mt-4 max-w-2xl text-pretty text-muted-foreground">
-        Ищет по названиям, описанию и стеку проектов.
+        Looks through project titles, descriptions and tech stacks.
       </p>
 
       {/*
@@ -33,14 +33,14 @@ export default async function SearchPage({
       */}
       <form action="/search" method="get" className="mt-8 flex gap-2">
         <label htmlFor="q" className="sr-only">
-          Поисковый запрос
+          Search query
         </label>
         <input
           id="q"
           name="q"
           type="search"
           defaultValue={query}
-          placeholder="Например: Next.js"
+          placeholder="For example: Next.js"
           autoComplete="off"
           className="w-full max-w-md rounded-md border border-border bg-background px-3 py-2 text-sm outline-none transition-colors focus:border-primary"
         />
@@ -49,26 +49,26 @@ export default async function SearchPage({
           className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
           <Search className="size-4" aria-hidden />
-          Найти
+          Search
         </button>
       </form>
 
       {tooShort && (
         <p className="mt-8 text-sm text-muted-foreground">
-          Введите хотя бы {MIN_SEARCH_LENGTH} символа.
+          Please enter at least {MIN_SEARCH_LENGTH} characters.
         </p>
       )}
 
       {searched && projects.length === 0 && (
         <p className="mt-8 rounded-lg border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-          По запросу «{query}» ничего не нашлось.
+          Nothing found for “{query}”.
         </p>
       )}
 
       {projects.length > 0 && (
         <section className="mt-12">
           <h2 className="font-medium">
-            Проекты{" "}
+            Projects{" "}
             <span className="font-mono text-sm text-muted-foreground">
               {projects.length}
             </span>

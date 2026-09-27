@@ -5,7 +5,7 @@ import { createSkillAction } from "@/actions/skills";
 import { SkillForm } from "@/components/admin/skill-form";
 
 export const metadata: Metadata = {
-  title: "Новый навык",
+  title: "New skill",
   robots: { index: false, follow: false },
 };
 
@@ -17,11 +17,11 @@ export default function NewSkillPage() {
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
-        К списку навыков
+        Back to skills
       </Link>
 
       <h1 className="mt-6 text-2xl font-semibold tracking-tight">
-        Новый навык
+        New skill
       </h1>
 
       <div className="mt-8">

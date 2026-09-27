@@ -4,7 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
-  title: "Вход",
+  title: "Sign in",
   robots: { index: false, follow: false },
 };
 
@@ -17,9 +17,9 @@ export default async function LoginPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-sm flex-col justify-center px-6 py-24">
-      <h1 className="text-2xl font-semibold tracking-tight">Вход в админку</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Раздел для управления содержимым сайта.
+        Admin area for managing the site content.
       </p>
 
       <div className="mt-8">
@@ -33,7 +33,7 @@ export default async function LoginPage() {
       */}
       {process.env.NODE_ENV === "development" && (
         <p className="mt-6 rounded-md border border-dashed border-border p-3 text-xs text-muted-foreground">
-          Демо-доступ: <span className="font-mono">admin@example.com</span> /{" "}
+          Demo access: <span className="font-mono">admin@example.com</span> /{" "}
           <span className="font-mono">admin12345</span>
         </p>
       )}

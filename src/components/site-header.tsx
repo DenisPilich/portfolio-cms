@@ -18,7 +18,7 @@ export function SiteHeader() {
           {siteConfig.name}
         </Link>
 
-        <nav aria-label="Основная навигация" className="hidden md:block">
+        <nav aria-label="Main navigation" className="hidden md:block">
           <ul className="flex items-center gap-1">
             {siteConfig.nav.map((item) => (
               <li key={item.href}>

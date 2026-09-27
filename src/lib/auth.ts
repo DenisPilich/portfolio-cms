@@ -37,7 +37,7 @@ function getSecretKey(): Uint8Array {
 
   if (!secret || secret === "replace-me") {
     throw new Error(
-      "Не задан AUTH_SECRET. Сгенерируйте его командой node -e \"console.log(require('crypto').randomBytes(32).toString('base64url'))\" и добавьте в .env",
+      'AUTH_SECRET is not set. Generate one with node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'base64url\'))" and add it to .env',
     );
   }
 
@@ -125,7 +125,7 @@ export async function assertUser(): Promise<SessionUser> {
   const user = await getSessionUser();
 
   if (!user) {
-    throw new Error("Требуется авторизация");
+    throw new Error("Authentication required");
   }
 
   return user;

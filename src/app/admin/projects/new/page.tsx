@@ -5,7 +5,7 @@ import { createProjectAction } from "@/actions/projects";
 import { ProjectForm } from "@/components/admin/project-form";
 
 export const metadata: Metadata = {
-  title: "Новый проект",
+  title: "New project",
   robots: { index: false, follow: false },
 };
 
@@ -17,11 +17,11 @@ export default function NewProjectPage() {
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
-        К списку проектов
+        Back to projects
       </Link>
 
       <h1 className="mt-6 text-2xl font-semibold tracking-tight">
-        Новый проект
+        New project
       </h1>
 
       <div className="mt-8">

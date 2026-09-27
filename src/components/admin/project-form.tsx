@@ -70,20 +70,20 @@ export function ProjectForm({
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="title">Название</Label>
+          <Label htmlFor="title">Title</Label>
           <Input
             id="title"
             name="title"
             value={title}
             onChange={(event) => handleTitleChange(event.target.value)}
             required
-            placeholder="Портфолио с собственной CMS"
+            placeholder="Portfolio with a custom CMS"
           />
           <FieldError errors={state.fieldErrors?.title} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="slug" hint="адрес страницы">
+          <Label htmlFor="slug" hint="page address">
             Slug
           </Label>
           <Input
@@ -103,8 +103,8 @@ export function ProjectForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="summary" hint="1–2 предложения">
-          Краткое описание
+        <Label htmlFor="summary" hint="1–2 sentences">
+          Summary
         </Label>
         <Textarea
           id="summary"
@@ -117,8 +117,8 @@ export function ProjectForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="content" hint="поддерживается Markdown">
-          Содержимое
+        <Label htmlFor="content" hint="Markdown is supported">
+          Content
         </Label>
         <Textarea
           id="content"
@@ -132,8 +132,8 @@ export function ProjectForm({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="techStack" hint="через запятую">
-          Технологии
+        <Label htmlFor="techStack" hint="comma separated">
+          Tech stack
         </Label>
         <Input
           id="techStack"
@@ -151,16 +151,16 @@ export function ProjectForm({
       */}
       <ImageUploader
         name="coverImage"
-        label="Обложка проекта"
-        hint="необязательно"
+        label="Project cover"
+        hint="optional"
         defaultValue={defaultValues?.coverImage}
         errors={state.fieldErrors?.coverImage}
       />
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="repoUrl" hint="необязательно">
-            Ссылка на код
+          <Label htmlFor="repoUrl" hint="optional">
+            Repository URL
           </Label>
           <Input
             id="repoUrl"
@@ -173,8 +173,8 @@ export function ProjectForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="liveUrl" hint="необязательно">
-            Ссылка на демо
+          <Label htmlFor="liveUrl" hint="optional">
+            Live demo URL
           </Label>
           <Input
             id="liveUrl"
@@ -189,8 +189,8 @@ export function ProjectForm({
 
       <div className="flex flex-wrap items-center gap-6">
         <div className="space-y-2">
-          <Label htmlFor="position" hint="меньше — выше">
-            Порядок
+          <Label htmlFor="position" hint="lower comes first">
+            Order
           </Label>
           <Input
             id="position"
@@ -207,14 +207,14 @@ export function ProjectForm({
         <Checkbox
           id="featured"
           name="featured"
-          label="Показывать на главной"
+          label="Show on the home page"
           defaultChecked={defaultValues?.featured ?? false}
         />
 
         <Checkbox
           id="published"
           name="published"
-          label="Опубликовано"
+          label="Published"
           defaultChecked={defaultValues?.published ?? false}
         />
       </div>
@@ -225,7 +225,7 @@ export function ProjectForm({
           disabled={isPending}
           className="rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
         >
-          {isPending ? "Сохраняем..." : "Сохранить"}
+          {isPending ? "Saving..." : "Save"}
         </button>
       </div>
     </form>

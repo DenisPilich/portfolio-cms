@@ -27,7 +27,7 @@ export async function loginAction(
   if (!parsed.success) {
     return {
       status: "error",
-      message: "Проверьте правильность заполнения полей",
+      message: "Please check the form fields",
       fieldErrors: z.flattenError(parsed.error).fieldErrors,
     };
   }
@@ -43,7 +43,7 @@ export async function loginAction(
   // Сообщение одинаково для «пользователя нет» и «пароль неверный»:
   // иначе форма превращается в инструмент перебора существующих адресов.
   if (!user || !passwordMatches) {
-    return { status: "error", message: "Неверный email или пароль" };
+    return { status: "error", message: "Wrong email or password" };
   }
 
   await createSession({

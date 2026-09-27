@@ -4,35 +4,42 @@ import { TechIcon } from "@/components/tech-icon";
 /**
  * Подписи уровней владения.
  *
- * Формулировки намеренно скромные: «уверенно» вместо «эксперт», «изучаю»
- * вместо «владею». Для начинающего специалиста честная оценка убедительнее
- * громких слов — она показывает, что человек понимает, где находится.
+ * Формулировки намеренно скромные: «hands-on» вместо «expert in everything».
+ * Для начинающего специалиста честная оценка убедительнее громких слов —
+ * она показывает, что человек понимает, где находится.
  */
 const LEVEL_LABELS: Record<SkillLevel, string> = {
-  CONFIDENT: "уверенно",
-  BASIC: "основы",
-  LEARNING: "изучаю",
+  LEARNING: "learning",
+  BASIC: "basics",
+  PRACTICAL: "hands-on",
+  EXPERT: "expert",
 };
 
-/** Сколько из трёх делений шкалы закрашено для каждого уровня. */
+/** Сколько из четырёх делений шкалы закрашено для каждого уровня. */
 const LEVEL_FILL: Record<SkillLevel, number> = {
-  CONFIDENT: 3,
-  BASIC: 2,
   LEARNING: 1,
+  BASIC: 2,
+  PRACTICAL: 3,
+  EXPERT: 4,
 };
+
+const LEVEL_STEPS = [1, 2, 3, 4];
 
 function LevelMeter({ level }: { level: SkillLevel }) {
   const filled = LEVEL_FILL[level];
 
   return (
-    <span className="flex items-center gap-1">
-      {[1, 2, 3].map((step) => (
+    <span
+      className="flex items-center gap-1"
+      title={`Level: ${LEVEL_LABELS[level]}`}
+    >
+      {LEVEL_STEPS.map((step) => (
         <span
           key={step}
           className={
             step <= filled
-              ? "h-1 w-3 rounded-full bg-primary"
-              : "h-1 w-3 rounded-full bg-border"
+              ? "h-1 w-2.5 rounded-full bg-primary"
+              : "h-1 w-2.5 rounded-full bg-border"
           }
         />
       ))}
@@ -44,7 +51,7 @@ function LevelMeter({ level }: { level: SkillLevel }) {
 }
 
 /**
- * Раздел «Что я умею».
+ * Раздел «What I can do».
  *
  * Компонент серверный: данные приходят готовыми, интерактивности нет.
  * Hard-навыки показываются плиткой с логотипами и уровнем владения,
@@ -57,10 +64,11 @@ export function SkillsSection({ skills }: { skills: Skill[] }) {
 
   return (
     <section id="skills" className="scroll-mt-24 border-t border-border py-20">
-      <h2 className="text-2xl font-semibold tracking-tight">Что я умею</h2>
+      <h2 className="text-2xl font-semibold tracking-tight">What I can do</h2>
       <p className="mt-3 max-w-2xl text-pretty text-muted-foreground">
-        Отмечаю уровень честно: где-то уже работаю уверенно, а где-то только
-        разбираюсь. Так понятнее, чего от меня ждать.
+        I mark the level honestly: some things I already use at work, others
+        I am still getting to grips with. That makes it clearer what to expect
+        from me.
       </p>
 
       {hardSkills.length > 0 && (

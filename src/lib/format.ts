@@ -5,6 +5,9 @@
  * форматирования. Поэтому форматтеры создаются один раз на уровне модуля,
  * а не внутри функции, которая вызывается для каждой карточки в списке.
  *
+ * Локаль en-US: сайт англоязычный, и даты должны читаться привычно —
+ * «September 13, 2026», а не «13 сентября 2026 г.».
+ *
  * Функции принимают и Date, и строку. Это не перестраховка: данные приходят
  * из unstable_cache, а кэш сохраняет значения в сериализованном виде, поэтому
  * после чтения с диска дата может оказаться строкой. Без нормализации
@@ -12,19 +15,19 @@
  */
 type DateLike = Date | string | null | undefined;
 
-const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
   month: "long",
   year: "numeric",
 });
 
-const shortDateFormatter = new Intl.DateTimeFormat("ru-RU", {
+const shortDateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "2-digit",
   month: "2-digit",
   year: "numeric",
 });
 
-const monthYearFormatter = new Intl.DateTimeFormat("ru-RU", {
+const monthYearFormatter = new Intl.DateTimeFormat("en-US", {
   month: "long",
   year: "numeric",
 });
@@ -42,11 +45,12 @@ function toDate(value: DateLike): Date | null {
 export function formatDate(value: DateLike): string {
   const date = toDate(value);
 
-  return date ? dateFormatter.format(date) : "без даты";
+  return date ? dateFormatter.format(date) : "no date";
 }
 
 export function formatShortDate(value: DateLike): string {
   const date = toDate(value);
+
   return date ? shortDateFormatter.format(date) : "—";
 }
 
@@ -56,7 +60,8 @@ export function formatShortDate(value: DateLike): string {
  */
 export function formatMonthYear(value: DateLike): string {
   const date = toDate(value);
-  return date ? monthYearFormatter.format(date) : "без даты";
+
+  return date ? monthYearFormatter.format(date) : "no date";
 }
 
 /**
@@ -65,13 +70,4 @@ export function formatMonthYear(value: DateLike): string {
  */
 export function toIsoDate(value: DateLike): string | undefined {
   return toDate(value)?.toISOString();
-}
-
-/**
- * Грубая оценка времени чтения: 180 слов в минуту — средний темп
- * для технических текстов на русском.
- */
-export function estimateReadingTime(text: string): number {
-  const words = text.trim().split(/\s+/).length;
-  return Math.max(1, Math.round(words / 180));
 }

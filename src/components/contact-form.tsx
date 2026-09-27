@@ -27,7 +27,7 @@ export function ContactForm() {
     return (
       <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-6">
         <p className="font-medium text-emerald-600 dark:text-emerald-400">
-          Сообщение отправлено
+          Message sent
         </p>
         <p className="mt-2 text-sm text-muted-foreground">{state.message}</p>
       </div>
@@ -40,32 +40,32 @@ export function ContactForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="name">Как вас зовут</Label>
-          <Input id="name" name="name" required placeholder="Иван" />
+          <Label htmlFor="name">Your name</Label>
+          <Input id="name" name="name" required placeholder="John" />
           <FieldError errors={state.fieldErrors?.name} />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="email">Email для ответа</Label>
+          <Label htmlFor="email">Email for a reply</Label>
           <Input
             id="email"
             name="email"
             type="email"
             required
-            placeholder="ivan@example.com"
+            placeholder="john@example.com"
           />
           <FieldError errors={state.fieldErrors?.email} />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="message">Сообщение</Label>
+        <Label htmlFor="message">Message</Label>
         <Textarea
           id="message"
           name="message"
           rows={6}
           required
-          placeholder="Расскажите, что нужно сделать, или задайте вопрос."
+          placeholder="Tell me what you need built, or just ask a question."
         />
         <FieldError errors={state.fieldErrors?.message} />
       </div>
@@ -75,8 +75,14 @@ export function ContactForm() {
         поэтому ни мышь, ни клавиатура, ни скринридер до него не доберутся.
       */}
       <div className="absolute -left-[9999px]" aria-hidden>
-        <label htmlFor="company">Компания</label>
-        <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+        <label htmlFor="company">Company</label>
+        <input
+          id="company"
+          name="company"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+        />
       </div>
 
       <button
@@ -84,7 +90,7 @@ export function ContactForm() {
         disabled={isPending}
         className="rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
       >
-        {isPending ? "Отправляем..." : "Отправить"}
+        {isPending ? "Sending..." : "Send message"}
       </button>
     </form>
   );

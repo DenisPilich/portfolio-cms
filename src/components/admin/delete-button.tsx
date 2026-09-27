@@ -12,7 +12,7 @@ export function DeleteButton({ label }: { label: string }) {
       type="submit"
       onClick={(event) => {
         const confirmed = window.confirm(
-          `Удалить «${label}»? Действие необратимо.`,
+          `Delete "${label}"? This cannot be undone.`,
         );
 
         if (!confirmed) {
