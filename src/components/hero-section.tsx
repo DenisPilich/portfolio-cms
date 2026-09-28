@@ -10,6 +10,11 @@ import { HeroScene } from "@/components/hero-scene";
  * получается эффект «печати», но без JavaScript: всё делает CSS-анимация,
  * а задержка считается от позиции слова в предложении.
  *
+ * Запуск анимации ждёт заставку: CSS-анимация стартует в момент отрисовки,
+ * а заставка закрывает экран больше секунды. Без этой связки зритель видел бы
+ * не начало фразы, а её хвост. Класс page-ready ставит загрузчик, а правила
+ * живут в globals.css рядом с остальными анимациями.
+ *
  * Компонент серверный: интерактивности нет, поэтому в бандл не попадает.
  */
 export function HeroSection() {
@@ -35,7 +40,7 @@ export function HeroSection() {
             <span
               key={`${word}-${index}`}
               style={{ animationDelay: `${index * 55}ms` }}
-              className="mr-[0.25em] inline-block animate-fade-in-up"
+              className="hero-reveal mr-[0.25em] inline-block"
             >
               {word}
             </span>
@@ -44,14 +49,14 @@ export function HeroSection() {
 
         <p
           style={{ animationDelay: `${words.length * 55 + 100}ms` }}
-          className="mt-6 animate-fade-in-up font-mono text-sm text-primary"
+          className="hero-reveal mt-6 font-mono text-sm text-primary"
         >
           {siteConfig.role}
         </p>
 
         <div
           style={{ animationDelay: `${words.length * 55 + 200}ms` }}
-          className="mt-9 flex animate-fade-in-up flex-wrap gap-3"
+          className="hero-reveal mt-9 flex flex-wrap gap-3"
         >
           <Link
             href="#portfolio"

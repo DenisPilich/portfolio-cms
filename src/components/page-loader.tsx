@@ -12,6 +12,11 @@ import { useEffect, useState } from "react";
  *
  * При переходах между страницами заставка не появляется: layout не
  * перемонтируется, а состояние живёт именно в нём.
+ *
+ * Когда заставка уходит, на <html> ставится класс page-ready. На него
+ * завязан старт анимации первого экрана: иначе слова начинали появляться
+ * под заставкой, и к моменту, когда она исчезала, зритель заставал
+ * только хвост фразы.
  */
 const MIN_VISIBLE_MS = 1100;
 
@@ -22,11 +27,18 @@ export function PageLoader() {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const startedAt = Date.now();
 
+    function hide() {
+      // Класс ставим до скрытия: React применит его в том же кадре,
+      // и анимация начнётся ровно в момент, когда откроется страница.
+      document.documentElement.classList.add("page-ready");
+      setIsVisible(false);
+    }
+
     function scheduleHide() {
       const elapsed = Date.now() - startedAt;
       const remaining = Math.max(0, MIN_VISIBLE_MS - elapsed);
 
-      timer = setTimeout(() => setIsVisible(false), remaining);
+      timer = setTimeout(hide, remaining);
     }
 
     if (document.readyState === "complete") {
@@ -51,6 +63,7 @@ export function PageLoader() {
   return (
     <div
       aria-hidden
+      data-page-loader
       className="fixed inset-0 z-100 flex items-center justify-center bg-background"
     >
       <div className="flex flex-col items-center gap-5">
