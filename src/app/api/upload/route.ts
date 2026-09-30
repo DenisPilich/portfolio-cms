@@ -41,44 +41,34 @@ function sanitizeFileName(name: string): string {
 /**
  * Проверяет, что хранилище вообще подключено.
  *
- * Способов два, и оба законные. Статический токен BLOB_READ_WRITE_TOKEN
- * удобен вне Vercel — например, в CI или на своём сервере. Но на самой
- * Vercel по умолчанию используется OIDC: вместо долгоживущего секрета
- * выдаются BLOB_STORE_ID и короткоживущий VERCEL_OIDC_TOKEN, который
- * SDK обновляет сам.
+ * Достаточно одного из двух: статического токена BLOB_READ_WRITE_TOKEN
+ * или идентификатора store BLOB_STORE_ID. Во втором случае токен добирает
+ * сам SDK — в том числе через OIDC.
  *
- * Проверять только токен было бы ошибкой: при подключении через OIDC
- * его в окружении нет, и загрузка отвечала бы «хранилище не настроено»,
- * хотя всё работает.
+ * Требовать ещё и VERCEL_OIDC_TOKEN нельзя, и это не придирка. На деплоях
+ * Vercel выдаёт OIDC-токен не как обычную переменную окружения, поэтому
+ * проверка «есть ли он в process.env» отказывала раньше, чем SDK успевал
+ * что-либо предпринять: загрузка сообщала «хранилище не настроено» там,
+ * где всё было настроено. Пусть решает SDK — он для этого и написан.
  */
 function isBlobConfigured(): boolean {
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
-    return true;
-  }
-
-  return Boolean(process.env.BLOB_STORE_ID && process.env.VERCEL_OIDC_TOKEN);
+  return Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID,
+  );
 }
 
 /**
- * Перечисляет отсутствующие переменные хранилища.
+ * Подсказка администратору, что именно сделать.
  *
- * Сообщение видит только вошедший администратор, значения не раскрываются —
- * лишь имена. Это избавляет от перебора догадок: локальный запуск и деплой
- * отличаются ровно набором переменных окружения, и полезно сразу знать,
- * какой именно не хватает.
+ * Сообщение видит только вошедший пользователь: это админка, а не публичная
+ * страница. Значения переменных не раскрываются — только имена.
  */
-function describeMissingBlobVariables(): string {
-  const candidates = [
-    "BLOB_READ_WRITE_TOKEN",
-    "BLOB_STORE_ID",
-    "VERCEL_OIDC_TOKEN",
-  ];
+function blobSetupHint(): string {
+  const missing = ["BLOB_READ_WRITE_TOKEN", "BLOB_STORE_ID"].filter(
+    (name) => !process.env[name],
+  );
 
-  const missing = candidates.filter((name) => !process.env[name]);
-
-  // Достаточно одной работающей связки, поэтому перечисляем все отсутствующие
-  // имена: если чего-то нет — будет видно, чего именно.
-  return missing.length > 0 ? missing.join(", ") : "unknown";
+  return `Storage is not configured (missing: ${missing.join(", ")}). Connect a Vercel Blob store to the project, or copy the read/write token from Storage → your store → Settings into the project environment variables, then redeploy.`;
 }
 
 export async function POST(request: Request) {
@@ -115,12 +105,7 @@ export async function POST(request: Request) {
   // Настройки окружения проверяем после входных данных: сначала убеждаемся,
   // что запрос корректен, и только потом выясняем, готово ли хранилище.
   if (!isBlobConfigured()) {
-    return Response.json(
-      {
-        error: `Хранилище не настроено. Отсутствуют переменные: ${describeMissingBlobVariables()}. Подключите Vercel Blob к проекту и сделайте Redeploy.`,
-      },
-      { status: 503 },
-    );
+    return Response.json({ error: blobSetupHint() }, { status: 503 });
   }
 
   try {
@@ -132,10 +117,15 @@ export async function POST(request: Request) {
 
     return Response.json({ url: blob.url });
   } catch (error) {
+    // Полный текст уходит в лог сервера, а администратору показываем причину
+    // коротко: иначе при отказе хранилища остаётся только гадать, дело
+    // в правах, в адресе или в самом файле.
     console.error("Не удалось загрузить файл в хранилище:", error);
 
+    const reason = error instanceof Error ? error.message : String(error);
+
     return Response.json(
-      { error: "Storage is unavailable, please try again later" },
+      { error: `Storage is unavailable: ${reason.slice(0, 300)}` },
       { status: 502 },
     );
   }

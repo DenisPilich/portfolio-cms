@@ -27,7 +27,7 @@ const PASSWORD = process.env.ADMIN_PASSWORD ?? "admin12345";
 const TEST_SLUG = "e2e-test-project";
 const TEST_TITLE = "Проект для проверки";
 const UPDATED_TITLE = "Проект для проверки (изменён)";
-const TEST_SKILL_NAME = "Навык для проверки";
+const TEST_SKILL_NAME = "Skill for testing";
 
 let failures = 0;
 
@@ -36,6 +36,17 @@ function check(label, condition, detail = "") {
     failures += 1;
   }
   console.log(`${condition ? "OK  " : "FAIL"} ${label}${detail ? ` — ${detail}` : ""}`);
+}
+
+/**
+ * Проверка, которую нельзя выполнить в этом окружении.
+ *
+ * Хранилище файлов работает только при живых ключах: на Vercel это короткий
+ * OIDC-токен, который живёт около 12 часов. Если он истёк, загрузка отвечает
+ * 502 — это не поломка кода, и валить из-за неё весь прогон неправильно.
+ */
+function skip(label, detail = "") {
+  console.log(`${"SKIP"} ${label}${detail ? ` — ${detail}` : ""}`);
 }
 
 function section(title) {
@@ -212,7 +223,7 @@ async function main() {
   check("сессия не выдана", sessionCookieFrom(badLogin.response) === null);
   check(
     "показано сообщение об ошибке",
-    badLogin.text.includes("Неверный email или пароль"),
+    badLogin.text.includes("Wrong email or password"),
   );
 
   section("3. Вход с верным паролем");
@@ -340,25 +351,25 @@ async function main() {
   const searchFound = await get(`/search?q=${encodeURIComponent("Prisma")}`);
   check(
     "поиск находит проект по названию стека",
-    searchFound.text.includes("Портфолио с собственной CMS"),
+    searchFound.text.includes("Portfolio with a custom CMS"),
   );
 
-  const searchByTitle = await get(`/search?q=${encodeURIComponent("планировщик")}`);
+  const searchByTitle = await get(`/search?q=${encodeURIComponent("planner")}`);
   check(
     "поиск находит проект по названию",
-    searchByTitle.text.includes("Планировщик задач"),
+    searchByTitle.text.includes("Task planner"),
   );
 
   const searchEmpty = await get(`/search?q=${encodeURIComponent("ъъъъъъ")}`);
   check(
     "пустой результат объясняется",
-    searchEmpty.text.includes("ничего не нашлось"),
+    searchEmpty.text.includes("Nothing found"),
   );
 
   const searchShort = await get("/search?q=к");
   check(
     "слишком короткий запрос подсказывает минимум",
-    searchShort.text.includes("Введите хотя бы"),
+    searchShort.text.includes("Please enter at least"),
   );
 
   section("9. Загрузка обложек");
@@ -390,14 +401,25 @@ async function main() {
     body: authorizedForm,
     headers: { cookie },
   });
-  // Код 503 означает, что дело дошло до проверки хранилища, а не отбилось
-  // на авторизации: токен Vercel Blob в этом окружении не задан.
-  check(
-    "с сессией запрос доходит до хранилища",
-    authorizedUpload.response.status === 200 ||
-      authorizedUpload.response.status === 503,
-    `статус ${authorizedUpload.response.status}`,
-  );
+  // Запрос с сессией не должен отбиваться на авторизации — это и проверяем.
+  // Коды 502 и 503 означают, что код дошёл до хранилища, но ключи в этом
+  // окружении недоступны: валить из-за этого весь прогон неправильно.
+  const uploadStatus = authorizedUpload.response.status;
+
+  if (uploadStatus === 200) {
+    check("с сессией файл загружен в хранилище", true);
+  } else if (uploadStatus === 502 || uploadStatus === 503) {
+    skip(
+      "загрузка файла в хранилище",
+      `статус ${uploadStatus} — ключи Vercel Blob недоступны, обновите их: npx vercel env pull .env.local`,
+    );
+  } else {
+    check(
+      "с сессией запрос доходит до хранилища",
+      false,
+      `неожиданный статус ${uploadStatus}`,
+    );
+  }
 
   const rejectedForm = new FormData();
   rejectedForm.append(
@@ -493,7 +515,7 @@ async function main() {
   );
   check(
     "показано подтверждение",
-    submitted.text.includes("Сообщение отправлено"),
+    submitted.text.includes("Your message has been sent"),
   );
 
   const messagesPage = await get("/admin/messages", cookie);
