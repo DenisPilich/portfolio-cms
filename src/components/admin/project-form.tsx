@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { initialActionState, type ActionState } from "@/lib/action-state";
 import { slugify } from "@/lib/slug";
 import { ImageUploader } from "@/components/admin/image-uploader";
+import { GalleryUploader } from "@/components/admin/gallery-uploader";
 import {
   Checkbox,
   FieldError,
@@ -24,6 +25,8 @@ export type ProjectFormValues = {
   summary: string;
   content: string;
   coverImage: string | null;
+  /** Снимки галереи: адрес и необязательная подпись для скринридера. */
+  images: { url: string; alt: string | null }[];
   techStack: string[];
   repoUrl: string | null;
   liveUrl: string | null;
@@ -155,6 +158,18 @@ export function ProjectForm({
         hint="optional"
         defaultValue={defaultValues?.coverImage}
         errors={state.fieldErrors?.coverImage}
+      />
+
+      {/*
+        Обложка и галерея — разные вещи: первая показывается в карточке
+        проекта, вторая раскрывается на его странице.
+      */}
+      <GalleryUploader
+        defaultValue={(defaultValues?.images ?? []).map((image) => ({
+          url: image.url,
+          alt: image.alt ?? "",
+        }))}
+        errors={state.fieldErrors?.gallery}
       />
 
       <div className="grid gap-6 sm:grid-cols-2">

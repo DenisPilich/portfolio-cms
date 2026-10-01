@@ -12,6 +12,7 @@ const validProject = {
   summary: "Сайт с собственной админкой и базой данных.",
   content: "Достаточно длинное содержимое проекта для прохождения проверки.",
   coverImage: "",
+  gallery: "",
   techStack: "Next.js, Prisma",
   repoUrl: "",
   liveUrl: "",
@@ -95,6 +96,67 @@ describe("projectSchema", () => {
       const flat = z.flattenError(result.error);
       expect(Object.keys(flat.fieldErrors)).toContain("title");
     }
+  });
+});
+
+/**
+ * Галерея приходит из формы JSON-строкой, поэтому проверяем не только
+ * разбор, но и поведение на мусоре: строка собирается в браузере,
+ * и доверять ей нельзя.
+ */
+describe("gallery в projectSchema", () => {
+  const image = { url: "https://example.com/shot.png", alt: "Главный экран" };
+
+  it("пустая строка превращается в пустой список", () => {
+    expect(projectSchema.parse({ ...validProject, gallery: "" }).gallery).toEqual(
+      [],
+    );
+  });
+
+  it("разбирает список снимков", () => {
+    const result = projectSchema.parse({
+      ...validProject,
+      gallery: JSON.stringify([image]),
+    });
+
+    expect(result.gallery).toEqual([image]);
+  });
+
+  it("допускает снимок без подписи", () => {
+    const result = projectSchema.parse({
+      ...validProject,
+      gallery: JSON.stringify([{ url: image.url }]),
+    });
+
+    expect(result.gallery[0].url).toBe(image.url);
+  });
+
+  it("отклоняет повреждённый JSON", () => {
+    expect(
+      projectSchema.safeParse({ ...validProject, gallery: "{не json" }).success,
+    ).toBe(false);
+  });
+
+  it("отклоняет снимок с неверным адресом", () => {
+    expect(
+      projectSchema.safeParse({
+        ...validProject,
+        gallery: JSON.stringify([{ url: "не-ссылка" }]),
+      }).success,
+    ).toBe(false);
+  });
+
+  it("не пускает больше двенадцати снимков", () => {
+    const many = Array.from({ length: 13 }, (_, index) => ({
+      url: `https://example.com/${index}.png`,
+    }));
+
+    expect(
+      projectSchema.safeParse({
+        ...validProject,
+        gallery: JSON.stringify(many),
+      }).success,
+    ).toBe(false);
   });
 });
 

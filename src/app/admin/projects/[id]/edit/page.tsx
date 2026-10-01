@@ -16,7 +16,12 @@ export default async function EditProjectPage({
 }: PageProps<"/admin/projects/[id]/edit">) {
   const { id } = await params;
 
-  const project = await prisma.project.findUnique({ where: { id } });
+  // Галерею запрашиваем вместе с проектом: форма показывает уже
+  // загруженные снимки, чтобы их можно было переставить или убрать.
+  const project = await prisma.project.findUnique({
+    where: { id },
+    include: { images: { orderBy: { position: "asc" } } },
+  });
 
   if (!project) {
     notFound();
@@ -56,6 +61,7 @@ export default async function EditProjectPage({
             summary: project.summary,
             content: project.content,
             coverImage: project.coverImage,
+            images: project.images,
             techStack: project.techStack,
             repoUrl: project.repoUrl,
             liveUrl: project.liveUrl,

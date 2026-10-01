@@ -252,6 +252,16 @@ async function main() {
   createFields.set("liveUrl", "");
   createFields.set("position", "0");
   createFields.set("published", "on");
+  // Галерею задаём внешними ссылками: так проверяется вся цепочка
+  // «форма → JSON → таблица project_images → публичная страница»,
+  // не завися от доступности хранилища файлов.
+  createFields.set(
+    "gallery",
+    JSON.stringify([
+      { url: "https://example.com/e2e-first.png", alt: "E2E first shot" },
+      { url: "https://example.com/e2e-second.png", alt: "E2E second shot" },
+    ]),
+  );
 
   const created = await postForm("/admin/projects/new", createFields, cookie);
   const createdLocation = created.response.headers.get("location");
@@ -273,6 +283,12 @@ async function main() {
   check(
     "на публичной странице видно технологии",
     publicProject.text.includes("Prisma"),
+  );
+  check(
+    "галерея проекта выводится на публичной странице",
+    publicProject.text.includes("Gallery") &&
+      publicProject.text.includes("E2E first shot") &&
+      publicProject.text.includes("E2E second shot"),
   );
 
   section("5. Редактирование проекта");

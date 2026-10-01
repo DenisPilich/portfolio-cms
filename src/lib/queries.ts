@@ -52,6 +52,9 @@ export const getProjectBySlug = unstable_cache(
   async (slug: string) =>
     prisma.project.findFirst({
       where: { slug, published: true },
+      // Галерею подтягиваем сразу: страница проекта без неё неполна,
+      // а отдельный запрос означал бы лишний круг до базы.
+      include: { images: { orderBy: { position: "asc" } } },
     }),
   ["project-by-slug"],
   { tags: [CACHE_TAGS.projects], revalidate: CACHE_SECONDS },

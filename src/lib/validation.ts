@@ -60,6 +60,53 @@ const checkboxSchema = z
   .union([z.literal("on"), z.literal("true"), z.undefined(), z.null()])
   .transform((value) => value === "on" || value === "true");
 
+/** Один снимок галереи. */
+const galleryItemSchema = z.object({
+  url: z.url("Enter a valid image address"),
+  alt: z.string().trim().max(160, "At most 160 characters").optional(),
+});
+
+/**
+ * Галерея проекта.
+ *
+ * Из формы приходит одной строкой с JSON. Это удобнее, чем несколько полей
+ * с одинаковыми именами: браузер отправил бы адреса и подписи двумя плоскими
+ * списками, и связывать их пришлось бы по индексам — при любом расхождении
+ * подпись уехала бы к чужой картинке.
+ *
+ * Разбор и проверка объединены в один шаг: результат transform уже типизирован
+ * как массив снимков, и в действии не нужно ничего парсить повторно.
+ */
+const gallerySchema = z
+  .string()
+  .trim()
+  .transform((value, ctx) => {
+    if (value === "") {
+      return [];
+    }
+
+    let parsed: unknown;
+
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      ctx.addIssue({ code: "custom", message: "Gallery data is corrupted" });
+      return z.NEVER;
+    }
+
+    const result = z
+      .array(galleryItemSchema)
+      .max(12, "At most 12 images per project")
+      .safeParse(parsed);
+
+    if (!result.success) {
+      ctx.addIssue({ code: "custom", message: "Gallery data is invalid" });
+      return z.NEVER;
+    }
+
+    return result.data;
+  });
+
 export const projectSchema = z.object({
   title: z
     .string()
@@ -75,6 +122,8 @@ export const projectSchema = z.object({
   content: z.string().trim().min(20, "The content must be at least 20 characters"),
   /** Ссылка на обложку. Загружается в хранилище или вставляется вручную. */
   coverImage: optionalUrlSchema,
+  /** Снимки галереи: приходят JSON-строкой, разбираются в массив. */
+  gallery: gallerySchema,
   techStack: techStackSchema,
   repoUrl: optionalUrlSchema,
   liveUrl: optionalUrlSchema,

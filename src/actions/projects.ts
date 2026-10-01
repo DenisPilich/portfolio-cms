@@ -24,6 +24,7 @@ function validateProjectForm(formData: FormData) {
     summary: formData.get("summary"),
     content: formData.get("content"),
     coverImage: formData.get("coverImage") ?? "",
+    gallery: formData.get("gallery") ?? "",
     techStack: formData.get("techStack") ?? "",
     repoUrl: formData.get("repoUrl") ?? "",
     liveUrl: formData.get("liveUrl") ?? "",
@@ -95,21 +96,39 @@ export async function createProjectAction(
     };
   }
 
-  await prisma.project.create({
-    data: {
-      title: data.title,
-      slug: data.slug,
-      summary: data.summary,
-      content: data.content,
-      coverImage: data.coverImage,
-      techStack: data.techStack,
-      repoUrl: data.repoUrl,
-      liveUrl: data.liveUrl,
-      featured: data.featured,
-      published: data.published,
-      position: data.position,
-      publishedAt: data.published ? new Date() : null,
-    },
+  // Проект и его галерея записываются одной транзакцией: если снимки
+  // по какой-то причине не сохранятся, проект без них оставаться не должен.
+  await prisma.$transaction(async (tx) => {
+    const project = await tx.project.create({
+      data: {
+        title: data.title,
+        slug: data.slug,
+        summary: data.summary,
+        content: data.content,
+        coverImage: data.coverImage,
+        techStack: data.techStack,
+        repoUrl: data.repoUrl,
+        liveUrl: data.liveUrl,
+        featured: data.featured,
+        published: data.published,
+        position: data.position,
+        publishedAt: data.published ? new Date() : null,
+      },
+      select: { id: true },
+    });
+
+    if (data.gallery.length > 0) {
+      await tx.projectImage.createMany({
+        data: data.gallery.map((image, index) => ({
+          url: image.url,
+          alt: image.alt ?? null,
+          // Порядок берём из позиции в списке: отдельное поле в форме
+          // не нужно, администратор расставляет снимки перетаскиванием.
+          position: index,
+          projectId: project.id,
+        })),
+      });
+    }
   });
 
   revalidateProjectViews();
@@ -155,26 +174,44 @@ export async function updateProjectAction(
     };
   }
 
-  await prisma.project.update({
-    where: { id },
-    data: {
-      title: data.title,
-      slug: data.slug,
-      summary: data.summary,
-      content: data.content,
-      coverImage: data.coverImage,
-      techStack: data.techStack,
-      repoUrl: data.repoUrl,
-      liveUrl: data.liveUrl,
-      featured: data.featured,
-      published: data.published,
-      position: data.position,
-      // Дату первой публикации сохраняем: повторное сохранение не должно
-      // переставлять проект в начало списка.
-      publishedAt: data.published
-        ? (current.publishedAt ?? new Date())
-        : null,
-    },
+  await prisma.$transaction(async (tx) => {
+    await tx.project.update({
+      where: { id },
+      data: {
+        title: data.title,
+        slug: data.slug,
+        summary: data.summary,
+        content: data.content,
+        coverImage: data.coverImage,
+        techStack: data.techStack,
+        repoUrl: data.repoUrl,
+        liveUrl: data.liveUrl,
+        featured: data.featured,
+        published: data.published,
+        position: data.position,
+        // Дату первой публикации сохраняем: повторное сохранение не должно
+        // переставлять проект в начало списка.
+        publishedAt: data.published
+          ? (current.publishedAt ?? new Date())
+          : null,
+      },
+    });
+
+    // Галерею проще пересобрать целиком, чем вычислять, что добавили, что
+    // убрали и что переставили местами: снимков немного, а разница между
+    // «обновить» и «пересоздать» здесь незаметна.
+    await tx.projectImage.deleteMany({ where: { projectId: id } });
+
+    if (data.gallery.length > 0) {
+      await tx.projectImage.createMany({
+        data: data.gallery.map((image, index) => ({
+          url: image.url,
+          alt: image.alt ?? null,
+          position: index,
+          projectId: id,
+        })),
+      });
+    }
   });
 
   revalidateProjectViews();

@@ -63,9 +63,39 @@ model Project {
   authorId String?
   author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
 
+  /// Снимки галереи. Обложка живёт отдельным полем: она показывается
+  /// в карточке проекта, а галерея — на его странице.
+  images ProjectImage[]
+
   /// Составной индекс под запрос «опубликованные, в нужном порядке».
   @@index([published, position])
   @@map("projects")
+}
+
+/// Снимок из галереи проекта.
+///
+/// Отдельная таблица, а не массив ссылок в проекте, и вот почему. У снимка
+/// есть подпись alt — без неё скринридер прочитает «изображение», а поисковик
+/// не поймёт, что на картинке. Есть и собственный порядок: администратор
+/// расставляет снимки так, как считает нужным, а не как получилось.
+/// И наконец onDelete: Cascade — при удалении проекта записи уходят вместе
+/// с ним, вручную чистить нечего.
+model ProjectImage {
+  id  String  @id @default(cuid())
+  url String
+  /// Подпись для скринридера и alt-атрибута. Необязательна, но желательна.
+  alt String?
+
+  /// Ручной порядок вывода внутри галереи.
+  position Int @default(0)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId, position])
+  @@map("project_images")
 }
 
 /// Сообщение из формы обратной связи.

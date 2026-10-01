@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Code2, ExternalLink } from "lucide-react";
 import { Markdown } from "@/components/markdown";
+import { ProjectGallery } from "@/components/project-gallery";
 import { formatDate, toIsoDate } from "@/lib/format";
 import { getProjectBySlug, getPublishedProjects } from "@/lib/queries";
 
@@ -111,6 +112,27 @@ export default async function ProjectPage({
       <div className="mt-10">
         <Markdown>{project.content}</Markdown>
       </div>
+
+      {project.images.length > 0 && (
+        <section className="mt-14 border-t border-border pt-10">
+          <h2 className="text-xl font-semibold tracking-tight">Gallery</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {project.images.length === 1
+              ? "One more look at the project"
+              : `${project.images.length} more looks at the project`}{" "}
+            — click any image to open it full size.
+          </p>
+
+          <ProjectGallery
+            images={project.images.map((image) => ({
+              url: image.url,
+              // Если подпись не заполнили, показываем название проекта:
+              // пустой alt заставил бы скринридер прочитать «изображение».
+              alt: image.alt ?? project.title,
+            }))}
+          />
+        </section>
+      )}
     </article>
   );
 }
