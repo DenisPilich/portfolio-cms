@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 
 export type GalleryImage = {
@@ -16,6 +17,14 @@ export type GalleryImage = {
  * в браузере. Открывается поверх страницы по клику, листается стрелками
  * и закрывается по Escape — иначе клавиатурный пользователь оказался бы
  * заперт внутри просмотра.
+ *
+ * Просмотр рендерится через портал прямо в <body>, а не на месте. Причина
+ * не в аккуратности, а в позиционировании: элемент с position: fixed
+ * отсчитывается от ближайшего предка, у которого есть transform, filter
+ * или contain. Любая анимация появляется на странице — и достаточно одного
+ * такого предка, чтобы окно уехало за пределы экрана и оставило после себя
+ * только затемнение. Портал выносит его на верхний уровень документа,
+ * где предков с такими свойствами нет.
  *
  * Список снимков приходит готовым и упорядоченным с сервера, поэтому
  * компонент ничего не сортирует: порядок задаёт администратор.
@@ -92,74 +101,86 @@ export function ProjectGallery({ images }: { images: GalleryImage[] }) {
         ))}
       </ul>
 
-      {current && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={current.alt}
-          onClick={close}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 p-4 backdrop-blur-sm"
-        >
-          <button
-            type="button"
+      {/*
+        document существует только в браузере, но проверка ничего не ломает:
+        начальное состояние одинаково на сервере и клиенте (просмотр закрыт),
+        расхождения при гидратации не будет.
+      */}
+      {current &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={current.alt}
             onClick={close}
-            aria-label="Close the preview"
-            className="absolute top-4 right-4 flex size-10 items-center justify-center rounded-md border border-border bg-background"
+            className="fixed inset-0 z-100 flex flex-col items-center justify-center gap-4 bg-background/95 p-4"
           >
-            <X className="size-5" aria-hidden />
-          </button>
+            <button
+              type="button"
+              onClick={close}
+              aria-label="Close the preview"
+              className="absolute top-4 right-4 z-10 flex size-10 items-center justify-center rounded-md border border-border bg-background"
+            >
+              <X className="size-5" aria-hidden />
+            </button>
 
-          {images.length > 1 && (
-            <>
-              {/* stopPropagation обязателен: без него клик по стрелке
-                  всплыл бы до фона и закрыл просмотр. */}
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  showPrevious();
-                }}
-                aria-label="Previous image"
-                className="absolute left-4 flex size-10 items-center justify-center rounded-md border border-border bg-background"
-              >
-                <ChevronLeft className="size-5" aria-hidden />
-              </button>
+            {images.length > 1 && (
+              <>
+                {/* stopPropagation обязателен: без него клик по стрелке
+                    всплыл бы до фона и закрыл просмотр. */}
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    showPrevious();
+                  }}
+                  aria-label="Previous image"
+                  className="absolute left-4 z-10 flex size-10 items-center justify-center rounded-md border border-border bg-background"
+                >
+                  <ChevronLeft className="size-5" aria-hidden />
+                </button>
 
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  showNext();
-                }}
-                aria-label="Next image"
-                className="absolute right-4 flex size-10 items-center justify-center rounded-md border border-border bg-background"
-              >
-                <ChevronRight className="size-5" aria-hidden />
-              </button>
-            </>
-          )}
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    showNext();
+                  }}
+                  aria-label="Next image"
+                  className="absolute right-4 z-10 flex size-10 items-center justify-center rounded-md border border-border bg-background"
+                >
+                  <ChevronRight className="size-5" aria-hidden />
+                </button>
+              </>
+            )}
 
-          <figure className="flex max-h-full flex-col items-center gap-3">
-            <Image
-              src={current.url}
-              alt={current.alt}
-              width={1600}
-              height={1000}
-              sizes="90vw"
-              className="h-auto max-h-[80vh] w-auto max-w-full rounded-lg object-contain"
-            />
+            {/*
+              Контейнер с явными размерами и fill: картинка вписывается
+              в него через object-contain и не зависит от того, какие
+              width/height оказались у файла.
+            */}
+            <div className="relative h-[78vh] w-full max-w-6xl">
+              <Image
+                src={current.url}
+                alt={current.alt}
+                fill
+                sizes="95vw"
+                className="object-contain"
+              />
+            </div>
 
-            <figcaption className="text-center text-xs text-muted-foreground">
+            <p className="text-center text-xs text-muted-foreground">
               {current.alt}
               {images.length > 1 && (
                 <span className="ml-2 font-mono">
                   {(openIndex ?? 0) + 1} / {images.length}
                 </span>
               )}
-            </figcaption>
-          </figure>
-        </div>
-      )}
+            </p>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

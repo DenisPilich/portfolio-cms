@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Maximize2, X } from "lucide-react";
 
 /**
@@ -10,6 +11,11 @@ import { Maximize2, X } from "lucide-react";
  * Клиентский компонент, потому что состояние открытого окна живёт
  * в браузере. По клику картинка открывается поверх страницы, чтобы снимок
  * проекта можно было рассмотреть целиком.
+ *
+ * Просмотр рендерится через портал в <body>: элемент с position: fixed
+ * отсчитывается от ближайшего предка с transform, filter или contain,
+ * а на страницах есть анимации появления. Без портала окно могло уехать
+ * за пределы экрана, оставив только затемнение.
  */
 export function ProjectImage({
   src,
@@ -66,32 +72,39 @@ export function ProjectImage({
         </span>
       </button>
 
-      {isOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label={alt}
-          onClick={() => setIsOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-background/90 p-4 backdrop-blur-sm"
-        >
-          <button
-            type="button"
-            aria-label="Close the preview"
-            className="absolute top-4 right-4 flex size-10 items-center justify-center rounded-md border border-border bg-background"
+      {isOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={alt}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 z-100 flex flex-col items-center justify-center gap-4 bg-background/95 p-4"
           >
-            <X className="size-5" aria-hidden />
-          </button>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              aria-label="Close the preview"
+              className="absolute top-4 right-4 z-10 flex size-10 items-center justify-center rounded-md border border-border bg-background"
+            >
+              <X className="size-5" aria-hidden />
+            </button>
 
-          <Image
-            src={src}
-            alt={alt}
-            width={1600}
-            height={1000}
-            sizes="90vw"
-            className="h-auto max-h-[85vh] w-auto max-w-full rounded-lg object-contain"
-          />
-        </div>
-      )}
+            {/* Явные размеры контейнера и fill: картинка вписывается
+                через object-contain независимо от размера файла. */}
+            <div className="relative h-[78vh] w-full max-w-6xl">
+              <Image
+                src={src}
+                alt={alt}
+                fill
+                sizes="95vw"
+                className="object-contain"
+              />
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

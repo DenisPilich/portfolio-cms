@@ -25,8 +25,8 @@ const EMAIL = process.env.ADMIN_EMAIL ?? "admin@example.com";
 const PASSWORD = process.env.ADMIN_PASSWORD ?? "admin12345";
 
 const TEST_SLUG = "e2e-test-project";
-const TEST_TITLE = "Проект для проверки";
-const UPDATED_TITLE = "Проект для проверки (изменён)";
+const TEST_TITLE = "E2E test project";
+const UPDATED_TITLE = "E2E test project (updated)";
 const TEST_SKILL_NAME = "Skill for testing";
 
 let failures = 0;
@@ -245,8 +245,8 @@ async function main() {
   const createFields = extractHiddenFields(newPage.text);
   createFields.set("title", TEST_TITLE);
   createFields.set("slug", TEST_SLUG);
-  createFields.set("summary", "Проект, созданный автоматической проверкой.");
-  createFields.set("content", "## Проверка\n\nЭтот проект создан интеграционным тестом.");
+  createFields.set("summary", "Project created by the automated check.");
+  createFields.set("content", "## Check\n\nThis project was created by the integration test.");
   createFields.set("techStack", "Next.js, Prisma");
   createFields.set("repoUrl", "");
   createFields.set("liveUrl", "");
@@ -311,8 +311,8 @@ async function main() {
     editFields.set("id", projectId);
     editFields.set("title", UPDATED_TITLE);
     editFields.set("slug", TEST_SLUG);
-    editFields.set("summary", "Описание обновлено автоматической проверкой.");
-    editFields.set("content", "## Проверка\n\nСодержимое обновлено.");
+    editFields.set("summary", "Description updated by the automated check.");
+    editFields.set("content", "## Check\n\nThe content was updated.");
     editFields.set("techStack", "Next.js");
     editFields.set("repoUrl", "");
     editFields.set("liveUrl", "");
@@ -334,6 +334,26 @@ async function main() {
       "публичная страница обновилась сразу после правки",
       publicAfterUpdate.text.includes(UPDATED_TITLE),
       `статус ${publicAfterUpdate.response.status}`,
+    );
+
+    /*
+     * Поиск проверяем здесь, пока проект существует.
+     *
+     * Раньше проверка опиралась на демонстрационные проекты из сида,
+     * но их состав меняется — например, «Task planner» однажды просто
+     * исчез, и тест упал не из-за поломки кода. Свой проект у теста есть
+     * всегда.
+     */
+    const searchByTitle = await get(`/search?q=${encodeURIComponent("E2E")}`);
+    check(
+      "поиск находит проект по названию",
+      searchByTitle.text.includes(UPDATED_TITLE),
+    );
+
+    const searchByStack = await get(`/search?q=${encodeURIComponent("Next.js")}`);
+    check(
+      "поиск находит проект по стеку",
+      searchByStack.text.includes(UPDATED_TITLE),
     );
   }
 
@@ -364,18 +384,8 @@ async function main() {
   }
 
   section("8. Поиск");
-  const searchFound = await get(`/search?q=${encodeURIComponent("Prisma")}`);
-  check(
-    "поиск находит проект по названию стека",
-    searchFound.text.includes("Portfolio with a custom CMS"),
-  );
-
-  const searchByTitle = await get(`/search?q=${encodeURIComponent("planner")}`);
-  check(
-    "поиск находит проект по названию",
-    searchByTitle.text.includes("Task planner"),
-  );
-
+  // Совпадения по названию и стеку проверяются выше, на проекте теста.
+  // Здесь остаются случаи, где результата быть не должно.
   const searchEmpty = await get(`/search?q=${encodeURIComponent("ъъъъъъ")}`);
   check(
     "пустой результат объясняется",

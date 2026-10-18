@@ -19,6 +19,7 @@ if (!connectionString) {
 const TABLES = [
   "users",
   "projects",
+  "project_images",
   "skills",
   "contact_messages",
   "site_settings",
@@ -61,6 +62,28 @@ try {
     const state = message.read ? "прочитано" : "новое";
     console.log(
       `  ${when}  ${message.name} <${message.email}>  [${state}]`,
+    );
+  }
+
+  // Галерею видно не в админке, а на странице проекта, поэтому полезно
+  // проверить, что снимки действительно записались.
+  const galleries = await client.query(
+    `select p.title,
+            p.slug,
+            p.published,
+            count(i.id)::int as images
+       from "projects" p
+       left join "project_images" i on i."projectId" = p.id
+      group by p.id, p.title, p.slug, p.published
+      order by p.position asc`,
+  );
+
+  console.log("\nПроекты и галереи:");
+
+  for (const project of galleries.rows) {
+    const state = project.published ? "опубл." : "черновик";
+    console.log(
+      `  ${project.images} фото  [${state}]  ${project.title}  (/projects/${project.slug})`,
     );
   }
 } catch (error) {
