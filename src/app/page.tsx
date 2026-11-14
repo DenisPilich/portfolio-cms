@@ -38,20 +38,25 @@ export default async function HomePage() {
             id="portfolio"
             className="scroll-mt-24 border-t border-border py-20"
           >
-            <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <h2 className="text-2xl font-semibold tracking-tight">
-                Портфолио
-              </h2>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">
+                  Portfolio
+                </p>
+                <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+                  My projects
+                </h2>
+              </div>
               <Link
                 href="/projects"
-                className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
-                Все проекты
+                All projects
                 <ArrowRight className="size-3.5" aria-hidden />
               </Link>
             </div>
 
-            <div className="mt-8 grid gap-6">
+            <div className="mt-10 grid gap-6">
               {projects.map((project) => (
                 <ProjectShowcase key={project.id} project={project} />
               ))}

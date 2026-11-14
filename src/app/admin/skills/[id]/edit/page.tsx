@@ -44,7 +44,6 @@ export default async function EditSkillPage({
             name: skill.name,
             description: skill.description,
             category: skill.category,
-            level: skill.level,
             icon: skill.icon,
             position: skill.position,
           }}

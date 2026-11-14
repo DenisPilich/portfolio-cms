@@ -22,7 +22,6 @@ function validateSkillForm(formData: FormData) {
     name: formData.get("name"),
     description: formData.get("description") ?? "",
     category: formData.get("category"),
-    level: formData.get("level"),
     icon: formData.get("icon") ?? "",
     position: formData.get("position") || 0,
   });

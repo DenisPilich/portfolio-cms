@@ -54,10 +54,17 @@ export function HeroScene() {
       <div className="pt-[100%]" aria-hidden />
 
       <div className="absolute inset-0">
+        {/* Свечение позади сцены: даёт глубину, из-за которой плоское кольцо
+            читается как объёмное. Слой декоративный и не перехватывает клики. */}
+        <div
+          className="pointer-events-none absolute inset-[12%] rounded-full bg-primary/25 blur-3xl"
+          aria-hidden
+        />
+
         {/* Пунктирная орбита: вращается она, а не иконки */}
         <svg
           viewBox="0 0 200 200"
-          className="absolute inset-0 size-full animate-spin-slow text-border"
+          className="absolute inset-0 size-full animate-spin-slow text-primary/40"
           aria-hidden
         >
           <circle
@@ -74,7 +81,7 @@ export function HeroScene() {
         {/* Внутренняя окружность неподвижна — она задаёт центр композиции */}
         <svg
           viewBox="0 0 200 200"
-          className="absolute inset-0 size-full text-border"
+          className="absolute inset-0 size-full text-primary/20"
           aria-hidden
         >
           <circle
@@ -110,7 +117,7 @@ export function HeroScene() {
                       // Разные задержки делают пульсацию несинхронной
                       animationDelay: `${index * 400}ms`,
                     }}
-                    className="flex size-11 animate-pulse-soft items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm"
+                    className="flex size-11 animate-pulse-soft items-center justify-center rounded-full border border-primary/30 bg-card text-foreground shadow-lg shadow-primary/10"
                   >
                     <TechIcon name={tech} className="size-5" />
                   </span>
@@ -121,7 +128,7 @@ export function HeroScene() {
         </div>
 
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="font-mono text-xl font-semibold text-primary">
+          <span className="font-mono text-3xl font-semibold text-primary drop-shadow-[0_0_18px_var(--color-primary)]">
             &lt;\&gt;
           </span>
         </div>

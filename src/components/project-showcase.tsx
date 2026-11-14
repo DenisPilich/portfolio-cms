@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Code2, ExternalLink } from "lucide-react";
 import { formatMonthYear } from "@/lib/format";
-import { TechIcon } from "@/components/tech-icon";
+import { findTechIcon, TechIcon } from "@/components/tech-icon";
 import { ProjectImage } from "@/components/project-image";
 import type { Project } from "@/generated/prisma/client";
 
@@ -14,18 +14,18 @@ import type { Project } from "@/generated/prisma/client";
  */
 export function ProjectShowcase({ project }: { project: Project }) {
   return (
-    <article className="grid gap-6 rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/60 sm:grid-cols-[220px_1fr] sm:p-6">
+    <article className="group grid gap-6 rounded-2xl border border-border bg-card p-5 transition-all hover:border-primary/60 hover:shadow-xl hover:shadow-primary/5 sm:grid-cols-[240px_1fr] sm:p-6">
       <ProjectImage src={project.coverImage} alt={project.title} />
 
       <div className="flex flex-col">
         <time
           dateTime={project.publishedAt?.toISOString?.() ?? undefined}
-          className="font-mono text-xs text-muted-foreground"
+          className="font-mono text-xs tracking-wide text-primary uppercase"
         >
           {formatMonthYear(project.publishedAt)}
         </time>
 
-        <h3 className="mt-2 text-lg font-semibold tracking-tight">
+        <h3 className="mt-2 text-xl font-semibold tracking-tight">
           <Link
             href={`/projects/${project.slug}`}
             className="transition-colors hover:text-primary"
@@ -40,14 +40,21 @@ export function ProjectShowcase({ project }: { project: Project }) {
 
         {project.techStack.length > 0 && (
           <ul className="mt-4 flex flex-wrap gap-2">
+            {/*
+              Подпись выводим всегда, а логотип — только если он есть
+              в наборе Simple Icons. Раньше незнакомая технология
+              превращалась в две случайные буквы («Fa», «A1»), и это
+              читалось как опечатка, а не как название.
+            */}
             {project.techStack.map((tech) => (
               <li
                 key={tech}
-                title={tech}
-                className="flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground"
               >
-                <TechIcon name={tech} className="size-4" />
-                <span className="sr-only">{tech}</span>
+                {findTechIcon(tech) && (
+                  <TechIcon name={tech} className="size-3.5 text-primary" />
+                )}
+                {tech}
               </li>
             ))}
           </ul>

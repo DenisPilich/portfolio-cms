@@ -20,14 +20,18 @@ const geistMono = Geist_Mono({
  * Тема применяется до первой отрисовки.
  *
  * Скрипт намеренно крошечный и синхронный: он выполняется до того, как браузер
- * покажет разметку, поэтому пользователь не видит «вспышку» светлой темы.
+ * покажет разметку, поэтому пользователь не видит «вспышку» другой темы.
  * Это единственное место, где инлайн-скрипт оправдан.
+ *
+ * Тёмная тема — основная, как на референсе: сайт задуман тёмным, и системная
+ * настройка его не переопределяет. Светлая включается кнопкой и запоминается
+ * в localStorage: она применяется только при явном выборе.
  *
  * Здесь же на <html> ставится класс js. На него завязано скрытие блоков
  * до появления при прокрутке: без JavaScript класс не появится, и содержимое
  * останется видимым, а не пропадёт.
  */
-const themeScript = `(function(){try{document.documentElement.classList.add("js");var stored=localStorage.getItem("theme");var prefersDark=window.matchMedia("(prefers-color-scheme: dark)").matches;if(stored==="dark"||(!stored&&prefersDark)){document.documentElement.classList.add("dark")}}catch(error){}})();`;
+const themeScript = `(function(){try{document.documentElement.classList.add("js");var stored=localStorage.getItem("theme");if(stored!=="light"){document.documentElement.classList.add("dark")}}catch(error){}})();`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),

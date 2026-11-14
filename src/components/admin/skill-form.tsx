@@ -21,7 +21,6 @@ export type SkillFormValues = {
   name: string;
   description: string | null;
   category: "HARD" | "SOFT";
-  level: "LEARNING" | "BASIC" | "PRACTICAL" | "EXPERT";
   icon: string | null;
   position: number;
 };
@@ -74,23 +73,6 @@ export function SkillForm({
             <option value="SOFT">Soft skill — personal quality</option>
           </Select>
           <FieldError errors={state.fieldErrors?.category} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="level" hint="hidden for soft skills">
-            Level
-          </Label>
-          <Select
-            id="level"
-            name="level"
-            defaultValue={defaultValues?.level ?? "BASIC"}
-          >
-            <option value="LEARNING">Learning — just getting started</option>
-            <option value="BASIC">Basics — used it in practice tasks</option>
-            <option value="PRACTICAL">Hands-on — built projects with it</option>
-            <option value="EXPERT">Expert — know it deeply</option>
-          </Select>
-          <FieldError errors={state.fieldErrors?.level} />
         </div>
       </div>
 

@@ -142,13 +142,13 @@ const skillCategorySchema = z.enum(["HARD", "SOFT"], {
 });
 
 /**
- * Уровень владения. Показывается только у hard-навыков: у soft-качеств
- * градация «знаю основы» звучала бы странно.
+ * Выбор уровня владения убран из формы навыка.
+ *
+ * Колонка level в базе осталась: она никому не мешает, а вернуть шкалу
+ * можно, не трогая данные. Но в интерфейсе её больше нет — оценивать себя
+ * по шкале «основы / уверенно / идеально» тяжело и необъективно, а читателю
+ * такая оценка мало что говорит.
  */
-const skillLevelSchema = z.enum(
-  ["LEARNING", "BASIC", "PRACTICAL", "EXPERT"],
-  { message: "Choose a level" },
-);
 
 /** Пустая строка превращается в null: в базе поле необязательное. */
 const optionalTextSchema = z
@@ -165,7 +165,6 @@ export const skillSchema = z.object({
     .max(60, "At most 60 characters"),
   description: optionalTextSchema,
   category: skillCategorySchema,
-  level: skillLevelSchema,
   /**
    * Ключ иконки из набора Simple Icons: «react», «nextdotjs».
    * Свободный текст, а не список значений: набор пополняется, и жёсткий

@@ -1,62 +1,19 @@
-import type { Skill, SkillLevel } from "@/generated/prisma/client";
+import type { Skill } from "@/generated/prisma/client";
 import { TechIcon } from "@/components/tech-icon";
 
 /**
- * Подписи уровней владения.
+ * Раздел навыков.
  *
- * Формулировки намеренно скромные: «hands-on» вместо «expert in everything».
- * Для начинающего специалиста честная оценка убедительнее громких слов —
- * она показывает, что человек понимает, где находится.
- */
-const LEVEL_LABELS: Record<SkillLevel, string> = {
-  LEARNING: "learning",
-  BASIC: "basics",
-  PRACTICAL: "hands-on",
-  EXPERT: "expert",
-};
-
-/** Сколько из четырёх делений шкалы закрашено для каждого уровня. */
-const LEVEL_FILL: Record<SkillLevel, number> = {
-  LEARNING: 1,
-  BASIC: 2,
-  PRACTICAL: 3,
-  EXPERT: 4,
-};
-
-const LEVEL_STEPS = [1, 2, 3, 4];
-
-function LevelMeter({ level }: { level: SkillLevel }) {
-  const filled = LEVEL_FILL[level];
-
-  return (
-    <span
-      className="flex items-center gap-1"
-      title={`Level: ${LEVEL_LABELS[level]}`}
-    >
-      {LEVEL_STEPS.map((step) => (
-        <span
-          key={step}
-          className={
-            step <= filled
-              ? "h-1 w-2.5 rounded-full bg-primary"
-              : "h-1 w-2.5 rounded-full bg-border"
-          }
-        />
-      ))}
-      <span className="ml-1 text-[0.65rem] text-muted-foreground">
-        {LEVEL_LABELS[level]}
-      </span>
-    </span>
-  );
-}
-
-/**
- * Раздел «What I can do».
+ * Уровней владения здесь намеренно нет. Шкала «основы / уверенно / идеально»
+ * выглядит объективной, но на практике судить о себе по ней невозможно:
+ * у каждого своя планка, и у читателя она другая. Вместо оценки — простой
+ * список технологий, с которыми человек работал, и качеств, которые может
+ * подтвердить делом. Уровни при этом остаются в базе: их можно вернуть,
+ * не трогая данные.
  *
- * Компонент серверный: данные приходят готовыми, интерактивности нет.
- * Hard-навыки показываются плиткой с логотипами и уровнем владения,
- * soft — карточками с пояснением, потому что у них суть в тексте,
- * а не в названии технологии.
+ * Hard-навыки — плитки с логотипами: так список читается быстрее, чем
+ * строкой через запятую. Soft — обычный список с акцентным маркером:
+ * у них суть в тексте, рамки вокруг каждого пункта только дробят чтение.
  */
 export function SkillsSection({ skills }: { skills: Skill[] }) {
   const hardSkills = skills.filter((skill) => skill.category === "HARD");
@@ -64,64 +21,59 @@ export function SkillsSection({ skills }: { skills: Skill[] }) {
 
   return (
     <section id="skills" className="scroll-mt-24 border-t border-border py-20">
-      <h2 className="text-2xl font-semibold tracking-tight">What I can do</h2>
-      <p className="mt-3 max-w-2xl text-pretty text-muted-foreground">
-        I mark the level honestly: some things I already use at work, others
-        I am still getting to grips with. That makes it clearer what to expect
-        from me.
+      <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">
+        Skills
       </p>
+      <h2 className="mt-4 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+        What I work with
+      </h2>
 
-      {hardSkills.length > 0 && (
-        <div className="mt-10">
-          <h3 className="font-mono text-sm tracking-wide text-muted-foreground uppercase">
-            Hard skills
-          </h3>
+      <div className="mt-12 grid gap-12 lg:grid-cols-2 lg:gap-16">
+        {hardSkills.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold tracking-tight">
+              Hard skills
+            </h3>
 
-          <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {hardSkills.map((skill) => (
-              <li
-                key={skill.id}
-                className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/60"
-              >
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-foreground">
-                  <TechIcon name={skill.icon ?? skill.name} />
-                </span>
-
-                <span className="flex min-w-0 flex-col gap-1.5">
-                  <span className="truncate text-sm font-medium">
+            <ul className="mt-6 flex flex-wrap gap-2.5">
+              {hardSkills.map((skill) => (
+                <li key={skill.id}>
+                  <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm transition-colors hover:border-primary/60">
+                    <span className="flex size-5 shrink-0 items-center justify-center text-primary">
+                      <TechIcon name={skill.icon ?? skill.name} className="size-4" />
+                    </span>
                     {skill.name}
                   </span>
-                  <LevelMeter level={skill.level} />
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      {softSkills.length > 0 && (
-        <div className="mt-12">
-          <h3 className="font-mono text-sm tracking-wide text-muted-foreground uppercase">
-            Soft skills
-          </h3>
+        {softSkills.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold tracking-tight">
+              Soft skills
+            </h3>
 
-          <ul className="mt-5 grid gap-4 sm:grid-cols-2">
-            {softSkills.map((skill) => (
-              <li
-                key={skill.id}
-                className="rounded-lg border border-border bg-card p-5"
-              >
-                <p className="font-medium">{skill.name}</p>
-                {skill.description && (
-                  <p className="mt-2 text-sm text-pretty text-muted-foreground">
-                    {skill.description}
-                  </p>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+            <ul className="mt-6 space-y-4">
+              {softSkills.map((skill) => (
+                <li
+                  key={skill.id}
+                  className="relative border-l-2 border-primary/40 pl-5"
+                >
+                  <p className="font-medium">{skill.name}</p>
+                  {skill.description && (
+                    <p className="mt-1 text-sm text-pretty text-muted-foreground">
+                      {skill.description}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </section>
   );
 }
