@@ -54,11 +54,22 @@ export function HeroScene() {
       <div className="pt-[100%]" aria-hidden />
 
       <div className="absolute inset-0">
-        {/* Свечение позади сцены: даёт глубину, из-за которой плоское кольцо
-            читается как объёмное. Слой декоративный и не перехватывает клики. */}
+        {/*
+          Свечение позади сцены: даёт глубину, из-за которой плоское кольцо
+          читается как объёмное.
+
+          Это радиальный градиент, а не размытый круг. Размытие (blur)
+          упиралось в overflow-hidden контейнера и обрезалось по его краям —
+          на фоне появлялся заметный квадрат. Градиент гаснет до полной
+          прозрачности сам, поэтому обрезка по границам блока не видна.
+        */}
         <div
-          className="pointer-events-none absolute inset-[12%] rounded-full bg-primary/25 blur-3xl"
+          className="pointer-events-none absolute inset-0"
           aria-hidden
+          style={{
+            background:
+              "radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--color-primary) 24%, transparent) 0%, transparent 62%)",
+          }}
         />
 
         {/* Пунктирная орбита: вращается она, а не иконки */}
